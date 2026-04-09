@@ -3,33 +3,18 @@
 import { Modal } from './modal';
 
 interface ConfirmDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  message: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  variant?: 'danger' | 'warning' | 'info';
+  isOpen: boolean; onClose: () => void; onConfirm: () => void;
+  title: string; message: string; confirmLabel?: string; variant?: 'danger' | 'warning' | 'info';
 }
 
-export function ConfirmDialog({
-  isOpen, onClose, onConfirm, title, message,
-  confirmLabel = 'Ya, Lanjutkan', cancelLabel = 'Batal', variant = 'danger',
-}: ConfirmDialogProps) {
-  const btnClass = {
-    danger: 'bg-gradient-to-r from-red-500 to-red-600',
-    warning: 'bg-gradient-to-r from-amber-500 to-amber-600',
-    info: 'bg-gradient-to-r from-indigo-500 to-indigo-600',
-  };
-
+export function ConfirmDialog({ isOpen, onClose, onConfirm, title, message, confirmLabel = 'Lanjutkan', variant = 'danger' }: ConfirmDialogProps) {
+  const cls = { danger: 'btn-danger', warning: 'btn-primary', info: 'btn-primary' };
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-slate-400 mb-6 text-sm">{message}</p>
-      <div className="flex justify-end gap-3">
-        <button onClick={onClose} className="px-4 py-2 text-sm glass-btn-outline rounded-xl">{cancelLabel}</button>
-        <button onClick={() => { onConfirm(); onClose(); }}
-          className={`px-4 py-2 text-sm text-white rounded-xl ${btnClass[variant]}`}>{confirmLabel}</button>
+      <p className="text-[13px] text-[#8892a4] mb-6">{message}</p>
+      <div className="flex justify-end gap-2">
+        <button onClick={onClose} className="btn btn-ghost btn-sm">Batal</button>
+        <button onClick={() => { onConfirm(); onClose(); }} className={`btn btn-sm ${cls[variant]}`}>{confirmLabel}</button>
       </div>
     </Modal>
   );

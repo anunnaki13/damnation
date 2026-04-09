@@ -3,22 +3,13 @@
 import { useState } from 'react';
 
 interface Column<T> {
-  key: string;
-  label: string;
-  sortable?: boolean;
-  render?: (value: any, row: T) => React.ReactNode;
-  className?: string;
+  key: string; label: string; sortable?: boolean;
+  render?: (value: any, row: T) => React.ReactNode; className?: string;
 }
-
 interface DataTableProps<T> {
-  columns: Column<T>[];
-  data: T[];
-  totalPages?: number;
-  currentPage?: number;
-  onPageChange?: (page: number) => void;
-  onRowClick?: (row: T) => void;
-  isLoading?: boolean;
-  emptyMessage?: string;
+  columns: Column<T>[]; data: T[]; totalPages?: number; currentPage?: number;
+  onPageChange?: (page: number) => void; onRowClick?: (row: T) => void;
+  isLoading?: boolean; emptyMessage?: string;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -32,85 +23,62 @@ export function DataTable<T extends Record<string, any>>({
     else { setSortKey(key); setSortDir('asc'); }
   };
 
-  const sortedData = sortKey
-    ? [...data].sort((a, b) => {
-        const cmp = String(a[sortKey] ?? '').localeCompare(String(b[sortKey] ?? ''));
-        return sortDir === 'asc' ? cmp : -cmp;
-      })
+  const sorted = sortKey
+    ? [...data].sort((a, b) => { const c = String(a[sortKey]??'').localeCompare(String(b[sortKey]??'')); return sortDir === 'asc' ? c : -c; })
     : data;
 
   return (
-    <div className="glass-card overflow-hidden">
+    <div className="card-flat overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full">
           <thead>
-            <tr className="border-b border-white/[0.06]">
+            <tr className="border-b border-white/[0.04]">
               {columns.map((col) => (
                 <th key={col.key}
-                  className={`px-4 py-3.5 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider ${
-                    col.sortable ? 'cursor-pointer hover:text-slate-200 select-none' : ''
-                  } ${col.className || ''}`}
+                  className={`px-5 py-3 text-left text-[11px] font-semibold text-[#4a5268] uppercase tracking-[0.08em] ${col.sortable ? 'cursor-pointer select-none hover:text-[#8892a4]' : ''} ${col.className || ''}`}
                   onClick={() => col.sortable && handleSort(col.key)}>
-                  <span className="flex items-center gap-1">
-                    {col.label}
-                    {col.sortable && sortKey === col.key && (
-                      <span className="text-indigo-400">{sortDir === 'asc' ? '↑' : '↓'}</span>
-                    )}
-                  </span>
+                  {col.label}
+                  {col.sortable && sortKey === col.key && <span className="text-[#7c5cfc] ml-1">{sortDir === 'asc' ? '↑' : '↓'}</span>}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
-              <tr>
-                <td colSpan={columns.length} className="px-4 py-16 text-center">
-                  <div className="flex justify-center">
-                    <div className="w-6 h-6 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                  </div>
-                  <p className="text-slate-500 text-sm mt-3">Memuat data...</p>
-                </td>
+              <tr><td colSpan={columns.length} className="py-20 text-center">
+                <div className="w-5 h-5 border-2 border-[#7c5cfc]/20 border-t-[#7c5cfc] rounded-full animate-spin mx-auto" />
+                <p className="text-[#4a5268] text-[13px] mt-3">Memuat...</p>
+              </td></tr>
+            ) : sorted.length === 0 ? (
+              <tr><td colSpan={columns.length} className="py-20 text-center text-[#4a5268] text-[13px]">{emptyMessage}</td></tr>
+            ) : sorted.map((row, idx) => (
+              <tr key={row.id ?? idx}
+                className={`border-b border-white/[0.02] transition-colors hover:bg-white/[0.015] ${onRowClick ? 'cursor-pointer' : ''}`}
+                onClick={() => onRowClick?.(row)}>
+                {columns.map((col) => (
+                  <td key={col.key} className={`px-5 py-3.5 text-[13px] text-[#c4cad4] ${col.className || ''}`}>
+                    {col.render ? col.render(row[col.key], row) : row[col.key] ?? '-'}
+                  </td>
+                ))}
               </tr>
-            ) : sortedData.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length} className="px-4 py-16 text-center text-slate-500">{emptyMessage}</td>
-              </tr>
-            ) : (
-              sortedData.map((row, idx) => (
-                <tr key={row.id ?? idx}
-                  className={`border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors ${onRowClick ? 'cursor-pointer' : ''}`}
-                  onClick={() => onRowClick?.(row)}>
-                  {columns.map((col) => (
-                    <td key={col.key} className={`px-4 py-3 text-slate-300 ${col.className || ''}`}>
-                      {col.render ? col.render(row[col.key], row) : row[col.key] ?? '-'}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            )}
+            ))}
           </tbody>
         </table>
       </div>
-
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-3 border-t border-white/[0.06]">
-          <span className="text-xs text-slate-500">Halaman {currentPage} dari {totalPages}</span>
+        <div className="flex items-center justify-between px-5 py-3 border-t border-white/[0.04]">
+          <span className="text-[11px] text-[#4a5268]">Hal {currentPage}/{totalPages}</span>
           <div className="flex gap-1">
             <button onClick={() => onPageChange?.(currentPage - 1)} disabled={currentPage <= 1}
-              className="px-3 py-1 text-xs rounded-lg glass-btn-outline disabled:opacity-30">Prev</button>
+              className="btn btn-ghost btn-xs disabled:opacity-30">Prev</button>
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              const start = Math.max(1, currentPage - 2);
-              const page = start + i;
-              if (page > totalPages) return null;
-              return (
-                <button key={page} onClick={() => onPageChange?.(page)}
-                  className={`px-3 py-1 text-xs rounded-lg ${page === currentPage ? 'glass-btn' : 'glass-btn-outline'}`}>
-                  {page}
-                </button>
-              );
+              const p = Math.max(1, currentPage - 2) + i;
+              if (p > totalPages) return null;
+              return <button key={p} onClick={() => onPageChange?.(p)}
+                className={`btn btn-xs ${p === currentPage ? 'btn-primary' : 'btn-ghost'}`}>{p}</button>;
             })}
             <button onClick={() => onPageChange?.(currentPage + 1)} disabled={currentPage >= totalPages}
-              className="px-3 py-1 text-xs rounded-lg glass-btn-outline disabled:opacity-30">Next</button>
+              className="btn btn-ghost btn-xs disabled:opacity-30">Next</button>
           </div>
         </div>
       )}
