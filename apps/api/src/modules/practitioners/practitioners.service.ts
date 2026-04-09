@@ -16,7 +16,7 @@ export class PractitionersService {
         namaLengkap: dto.namaLengkap,
         gelarDepan: dto.gelarDepan,
         gelarBelakang: dto.gelarBelakang,
-        jenisKelamin: dto.jenisKelamin,
+        jenisKelamin: dto.jenisKelamin as any,
         spesialisasi: dto.spesialisasi,
         jenisNakes: dto.jenisNakes as any,
         noHp: dto.noHp,

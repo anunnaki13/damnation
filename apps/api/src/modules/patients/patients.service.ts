@@ -30,8 +30,8 @@ export class PatientsService {
         namaLengkap: dto.namaLengkap,
         tempatLahir: dto.tempatLahir,
         tanggalLahir: new Date(dto.tanggalLahir),
-        jenisKelamin: dto.jenisKelamin,
-        golonganDarah: dto.golonganDarah,
+        jenisKelamin: dto.jenisKelamin as any,
+        golonganDarah: dto.golonganDarah as any,
         agama: dto.agama,
         statusNikah: dto.statusNikah,
         pekerjaan: dto.pekerjaan,
@@ -110,8 +110,10 @@ export class PatientsService {
       where: { id: BigInt(id) },
       data: {
         ...dto,
+        jenisKelamin: dto.jenisKelamin as any,
+        golonganDarah: dto.golonganDarah as any,
         tanggalLahir: dto.tanggalLahir ? new Date(dto.tanggalLahir) : undefined,
-      },
+      } as any,
     });
     return this.formatPatient(updated);
   }

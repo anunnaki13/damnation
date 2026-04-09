@@ -223,7 +223,6 @@ model Practitioner {
   users           User[]
   schedules       PractitionerSchedule[]
   encounters      Encounter[]
-  diagnoses       Diagnosis[]
   procedures      Procedure[]
   medicalRecords  MedicalRecord[]
   prescriptions   Prescription[]
