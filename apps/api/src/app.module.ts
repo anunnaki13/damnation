@@ -16,6 +16,9 @@ import { EmergencyModule } from './modules/emergency/emergency.module';
 import { InpatientModule } from './modules/inpatient/inpatient.module';
 import { LaboratoryModule } from './modules/laboratory/laboratory.module';
 import { SatusehatModule } from './modules/satusehat/satusehat.module';
+import { SurgeryModule } from './modules/surgery/surgery.module';
+import { NutritionModule } from './modules/nutrition/nutrition.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -40,6 +43,9 @@ import { HealthController } from './health.controller';
     InpatientModule,
     LaboratoryModule,
     SatusehatModule,
+    SurgeryModule,
+    NutritionModule,
+    AnalyticsModule,
   ],
   controllers: [HealthController],
   providers: [
