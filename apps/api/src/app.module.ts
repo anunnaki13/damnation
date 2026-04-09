@@ -6,6 +6,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { PatientsModule } from './modules/patients/patients.module';
 import { PractitionersModule } from './modules/practitioners/practitioners.module';
+import { LocationsModule } from './modules/locations/locations.module';
+import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -20,6 +22,8 @@ import { HealthController } from './health.controller';
     UsersModule,
     PatientsModule,
     PractitionersModule,
+    LocationsModule,
+    PharmacyModule,
   ],
   controllers: [HealthController],
   providers: [
