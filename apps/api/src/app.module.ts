@@ -11,6 +11,7 @@ import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { RegistrationModule } from './modules/registration/registration.module';
 import { OutpatientModule } from './modules/outpatient/outpatient.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { BpjsModule } from './modules/bpjs/bpjs.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -30,6 +31,7 @@ import { HealthController } from './health.controller';
     RegistrationModule,
     OutpatientModule,
     BillingModule,
+    BpjsModule,
   ],
   controllers: [HealthController],
   providers: [
