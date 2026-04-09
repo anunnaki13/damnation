@@ -14,6 +14,7 @@ import { BillingModule } from './modules/billing/billing.module';
 import { BpjsModule } from './modules/bpjs/bpjs.module';
 import { EmergencyModule } from './modules/emergency/emergency.module';
 import { InpatientModule } from './modules/inpatient/inpatient.module';
+import { LaboratoryModule } from './modules/laboratory/laboratory.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -36,6 +37,7 @@ import { HealthController } from './health.controller';
     BpjsModule,
     EmergencyModule,
     InpatientModule,
+    LaboratoryModule,
   ],
   controllers: [HealthController],
   providers: [
