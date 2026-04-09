@@ -1,0 +1,1174 @@
+// ==============================================
+// SIMRS Petala Bumi — Prisma Schema
+// RSUD Petala Bumi Provinsi Riau
+// 23 Modul Terintegrasi
+// ==============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ==============================================
+// USERS & RBAC
+// ==============================================
+
+model User {
+  id              BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  username        String     @unique @db.VarChar(50)
+  email           String?    @unique @db.VarChar(100)
+  passwordHash    String     @map("password_hash") @db.VarChar(255)
+  employeeId      BigInt?    @map("employee_id") @db.UnsignedBigInt
+  practitionerId  BigInt?    @map("practitioner_id") @db.UnsignedBigInt
+  isActive        Boolean    @default(true) @map("is_active")
+  mfaEnabled      Boolean    @default(false) @map("mfa_enabled")
+  mfaSecret       String?    @map("mfa_secret") @db.VarChar(100)
+  lastLogin       DateTime?  @map("last_login")
+  createdAt       DateTime   @default(now()) @map("created_at")
+
+  employee     Employee?     @relation(fields: [employeeId], references: [id])
+  practitioner Practitioner? @relation(fields: [practitionerId], references: [id])
+  userRoles    UserRole[]
+
+  @@map("users")
+}
+
+model Role {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  name        String   @unique @db.VarChar(50)
+  description String?  @db.VarChar(200)
+  permissions Json
+
+  userRoles UserRole[]
+
+  @@map("roles")
+}
+
+model UserRole {
+  userId BigInt @map("user_id") @db.UnsignedBigInt
+  roleId BigInt @map("role_id") @db.UnsignedBigInt
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+// ==============================================
+// MASTER PASIEN
+// ==============================================
+
+model Patient {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  noRm           String    @unique @map("no_rm") @db.VarChar(15)
+  nik            String?   @unique @db.VarChar(16)
+  noBpjs         String?   @map("no_bpjs") @db.VarChar(13)
+  satusehatId    String?   @map("satusehat_id") @db.VarChar(64)
+  namaLengkap    String    @map("nama_lengkap") @db.VarChar(200)
+  tempatLahir    String?   @map("tempat_lahir") @db.VarChar(100)
+  tanggalLahir   DateTime  @map("tanggal_lahir") @db.Date
+  jenisKelamin   JenisKelamin @map("jenis_kelamin")
+  golonganDarah  GolonganDarah? @map("golongan_darah")
+  agama          String?   @db.VarChar(20)
+  statusNikah    StatusNikah? @map("status_nikah")
+  pendidikan     String?   @db.VarChar(30)
+  pekerjaan      String?   @db.VarChar(50)
+  alamat         String?   @db.Text
+  rt             String?   @db.VarChar(5)
+  rw             String?   @db.VarChar(5)
+  kelurahan      String?   @db.VarChar(100)
+  kecamatan      String?   @db.VarChar(100)
+  kabupaten      String?   @db.VarChar(100)
+  provinsi       String?   @db.VarChar(100)
+  kodePos        String?   @map("kode_pos") @db.VarChar(5)
+  noTelp         String?   @map("no_telp") @db.VarChar(20)
+  noHp           String?   @map("no_hp") @db.VarChar(20)
+  email          String?   @db.VarChar(100)
+  namaIbu        String?   @map("nama_ibu") @db.VarChar(200)
+  namaPj         String?   @map("nama_pj") @db.VarChar(200)
+  hubunganPj     String?   @map("hubungan_pj") @db.VarChar(30)
+  alamatPj       String?   @map("alamat_pj") @db.Text
+  telpPj         String?   @map("telp_pj") @db.VarChar(20)
+  alergiObat     String?   @map("alergi_obat") @db.Text
+  alergiMakanan  String?   @map("alergi_makanan") @db.Text
+  foto           String?   @db.VarChar(255)
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  createdBy      BigInt?   @map("created_by") @db.UnsignedBigInt
+
+  encounters     Encounter[]
+  diagnoses      Diagnosis[]
+  observations   Observation[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  labOrders      LabOrder[]
+  radiologyOrders RadiologyOrder[]
+  bills          Bill[]
+  queueTickets   QueueTicket[]
+
+  @@index([nik])
+  @@index([noBpjs])
+  @@index([satusehatId])
+  @@index([namaLengkap])
+  @@index([tanggalLahir])
+  @@map("patients")
+}
+
+// ==============================================
+// MASTER DOKTER / TENAGA KESEHATAN
+// ==============================================
+
+model Practitioner {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  nip             String?   @unique @db.VarChar(20)
+  nik             String?   @db.VarChar(16)
+  satusehatId     String?   @map("satusehat_id") @db.VarChar(64)
+  sipNumber       String?   @map("sip_number") @db.VarChar(30)
+  strNumber       String?   @map("str_number") @db.VarChar(30)
+  namaLengkap     String    @map("nama_lengkap") @db.VarChar(200)
+  gelarDepan      String?   @map("gelar_depan") @db.VarChar(20)
+  gelarBelakang   String?   @map("gelar_belakang") @db.VarChar(50)
+  jenisKelamin    JenisKelamin @map("jenis_kelamin")
+  tempatLahir     String?   @map("tempat_lahir") @db.VarChar(100)
+  tanggalLahir    DateTime? @map("tanggal_lahir") @db.Date
+  spesialisasi    String?   @db.VarChar(100)
+  subSpesialisasi String?   @map("sub_spesialisasi") @db.VarChar(100)
+  jenisNakes      JenisNakes @map("jenis_nakes")
+  alamat          String?   @db.Text
+  noHp            String?   @map("no_hp") @db.VarChar(20)
+  email           String?   @db.VarChar(100)
+  foto            String?   @db.VarChar(255)
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  users           User[]
+  schedules       PractitionerSchedule[]
+  encounters      Encounter[]
+  diagnoses       Diagnosis[]
+  procedures      Procedure[]
+  medicalRecords  MedicalRecord[]
+  prescriptions   Prescription[]
+  labOrders       LabOrder[]
+  employees       Employee[]
+
+  @@index([satusehatId])
+  @@index([spesialisasi])
+  @@map("practitioners")
+}
+
+// ==============================================
+// MASTER LOKASI / UNIT
+// ==============================================
+
+model Location {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  satusehatId   String?   @map("satusehat_id") @db.VarChar(64)
+  kode          String    @unique @db.VarChar(20)
+  nama          String    @db.VarChar(200)
+  tipe          TipeLokasi
+  lantai        String?   @db.VarChar(10)
+  gedung        String?   @db.VarChar(50)
+  parentId      BigInt?   @map("parent_id") @db.UnsignedBigInt
+  kapasitasBed  Int       @default(0) @map("kapasitas_bed")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  parent        Location?  @relation("LocationHierarchy", fields: [parentId], references: [id])
+  children      Location[] @relation("LocationHierarchy")
+  schedules     PractitionerSchedule[]
+  encounters    Encounter[]
+  beds          Bed[]
+  medicineStocks MedicineStock[]
+  queueTickets  QueueTicket[]
+
+  @@map("locations")
+}
+
+model PractitionerSchedule {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  practitionerId  BigInt   @map("practitioner_id") @db.UnsignedBigInt
+  locationId      BigInt   @map("location_id") @db.UnsignedBigInt
+  hari            Hari
+  jamMulai        DateTime @map("jam_mulai") @db.Time(0)
+  jamSelesai      DateTime @map("jam_selesai") @db.Time(0)
+  kuotaPasien     Int      @default(30) @map("kuota_pasien")
+  isActive        Boolean  @default(true) @map("is_active")
+
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id])
+  location     Location     @relation(fields: [locationId], references: [id])
+
+  @@map("practitioner_schedules")
+}
+
+// ==============================================
+// ENCOUNTER / KUNJUNGAN
+// ==============================================
+
+model Encounter {
+  id              BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  noRawat         String          @unique @map("no_rawat") @db.VarChar(20)
+  satusehatId     String?         @map("satusehat_id") @db.VarChar(64)
+  patientId       BigInt          @map("patient_id") @db.UnsignedBigInt
+  practitionerId  BigInt?         @map("practitioner_id") @db.UnsignedBigInt
+  locationId      BigInt          @map("location_id") @db.UnsignedBigInt
+  tipe            TipeEncounter
+  kelasRawat      KelasRawat?     @map("kelas_rawat")
+  status          StatusEncounter @default(PLANNED)
+  tanggalMasuk    DateTime        @map("tanggal_masuk")
+  tanggalKeluar   DateTime?       @map("tanggal_keluar")
+  penjamin        Penjamin        @default(UMUM)
+  noSep           String?         @map("no_sep") @db.VarChar(20)
+  noRujukan       String?         @map("no_rujukan") @db.VarChar(20)
+  caraMasuk       CaraMasuk?      @map("cara_masuk")
+  caraKeluar      CaraKeluar?     @map("cara_keluar")
+  triaseLevel     TriaseLevel?    @map("triase_level")
+  bedId           BigInt?         @map("bed_id") @db.UnsignedBigInt
+  fhirSynced      Boolean         @default(false) @map("fhir_synced")
+  fhirSyncedAt    DateTime?       @map("fhir_synced_at")
+  fhirError       String?         @map("fhir_error") @db.Text
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  createdBy       BigInt?         @map("created_by") @db.UnsignedBigInt
+
+  patient      Patient       @relation(fields: [patientId], references: [id])
+  practitioner Practitioner? @relation(fields: [practitionerId], references: [id])
+  location     Location      @relation(fields: [locationId], references: [id])
+  bed          Bed?          @relation(fields: [bedId], references: [id])
+
+  diagnoses      Diagnosis[]
+  procedures     Procedure[]
+  medicalRecords MedicalRecord[]
+  observations   Observation[]
+  prescriptions  Prescription[]
+  labOrders      LabOrder[]
+  radiologyOrders RadiologyOrder[]
+  bills          Bill[]
+
+  @@index([patientId])
+  @@index([tanggalMasuk])
+  @@index([status])
+  @@index([penjamin])
+  @@index([fhirSynced])
+  @@map("encounters")
+}
+
+// ==============================================
+// DIAGNOSA (ICD-10)
+// ==============================================
+
+model Diagnosis {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
+  satusehatId   String?  @map("satusehat_id") @db.VarChar(64)
+  icd10Code     String   @map("icd10_code") @db.VarChar(10)
+  icd10Display  String?  @map("icd10_display") @db.VarChar(500)
+  tipe          TipeDiagnosis @default(PRIMER)
+  rankOrder     Int      @default(1) @map("rank_order")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  createdBy     BigInt?  @map("created_by") @db.UnsignedBigInt
+
+  encounter  Encounter    @relation(fields: [encounterId], references: [id])
+  patient    Patient      @relation(fields: [patientId], references: [id])
+
+  @@index([encounterId])
+  @@index([icd10Code])
+  @@map("diagnoses")
+}
+
+// ==============================================
+// PROSEDUR / TINDAKAN (ICD-9-CM)
+// ==============================================
+
+model Procedure {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId     BigInt   @map("encounter_id") @db.UnsignedBigInt
+  satusehatId     String?  @map("satusehat_id") @db.VarChar(64)
+  icd9cmCode      String   @map("icd9cm_code") @db.VarChar(10)
+  icd9cmDisplay   String?  @map("icd9cm_display") @db.VarChar(500)
+  tanggal         DateTime
+  practitionerId  BigInt?  @map("practitioner_id") @db.UnsignedBigInt
+  catatan         String?  @db.Text
+  tarif           Decimal  @default(0) @db.Decimal(15, 2)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  encounter    Encounter    @relation(fields: [encounterId], references: [id])
+  practitioner Practitioner? @relation(fields: [practitionerId], references: [id])
+
+  @@map("procedures")
+}
+
+// ==============================================
+// REKAM MEDIS ELEKTRONIK
+// ==============================================
+
+model MedicalRecord {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId     BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId       BigInt   @map("patient_id") @db.UnsignedBigInt
+  practitionerId  BigInt   @map("practitioner_id") @db.UnsignedBigInt
+  tipe            TipeRekamMedis
+  // SOAP
+  subjective      String?  @db.Text
+  objective       String?  @db.Text
+  assessment      String?  @db.Text
+  plan            String?  @db.Text
+  // ADIME (Gizi)
+  adimeAssessment    String? @map("adime_assessment") @db.Text
+  adimeDiagnosis     String? @map("adime_diagnosis") @db.Text
+  adimeIntervention  String? @map("adime_intervention") @db.Text
+  adimeMonitoring    String? @map("adime_monitoring") @db.Text
+  adimeEvaluation    String? @map("adime_evaluation") @db.Text
+  // SBAR (Keperawatan)
+  sbarSituation      String? @map("sbar_situation") @db.Text
+  sbarBackground     String? @map("sbar_background") @db.Text
+  sbarAssessment     String? @map("sbar_assessment") @db.Text
+  sbarRecommendation String? @map("sbar_recommendation") @db.Text
+  // Tanda Vital
+  tekananDarahSistolik  Int? @map("tekanan_darah_sistolik")
+  tekananDarahDiastolik Int? @map("tekanan_darah_diastolik")
+  nadi                  Int?
+  suhu                  Decimal? @db.Decimal(4, 1)
+  pernapasan            Int?
+  spo2                  Int?
+  tinggiBadan           Decimal? @map("tinggi_badan") @db.Decimal(5, 1)
+  beratBadan            Decimal? @map("berat_badan") @db.Decimal(5, 1)
+  // Digital Signature
+  signedBy        BigInt?   @map("signed_by") @db.UnsignedBigInt
+  signedAt        DateTime? @map("signed_at")
+  signatureHash   String?   @map("signature_hash") @db.VarChar(255)
+  // Metadata
+  tanggalInput    DateTime  @default(now()) @map("tanggal_input")
+  isAmendment     Boolean   @default(false) @map("is_amendment")
+  amendmentOf     BigInt?   @map("amendment_of") @db.UnsignedBigInt
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  encounter    Encounter    @relation(fields: [encounterId], references: [id])
+  patient      Patient      @relation(fields: [patientId], references: [id])
+  practitioner Practitioner @relation(fields: [practitionerId], references: [id])
+
+  @@index([encounterId])
+  @@index([patientId])
+  @@index([tipe])
+  @@map("medical_records")
+}
+
+// ==============================================
+// OBSERVATION (FHIR-ready)
+// ==============================================
+
+model Observation {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId     BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId       BigInt   @map("patient_id") @db.UnsignedBigInt
+  satusehatId     String?  @map("satusehat_id") @db.VarChar(64)
+  category        String   @db.VarChar(50)
+  loincCode       String?  @map("loinc_code") @db.VarChar(20)
+  loincDisplay    String?  @map("loinc_display") @db.VarChar(200)
+  valueQuantity   Decimal? @map("value_quantity") @db.Decimal(10, 3)
+  valueUnit       String?  @map("value_unit") @db.VarChar(20)
+  valueString     String?  @map("value_string") @db.Text
+  valueCode       String?  @map("value_code") @db.VarChar(50)
+  interpretation  String?  @db.VarChar(50)
+  referenceLow    Decimal? @map("reference_low") @db.Decimal(10, 3)
+  referenceHigh   Decimal? @map("reference_high") @db.Decimal(10, 3)
+  effectiveAt     DateTime @map("effective_at")
+  issuedAt        DateTime? @map("issued_at")
+  performerId     BigInt?  @map("performer_id") @db.UnsignedBigInt
+  status          StatusObservation @default(FINAL)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  encounter Encounter @relation(fields: [encounterId], references: [id])
+  patient   Patient   @relation(fields: [patientId], references: [id])
+
+  @@index([encounterId])
+  @@index([loincCode])
+  @@index([category])
+  @@map("observations")
+}
+
+// ==============================================
+// FARMASI & OBAT
+// ==============================================
+
+model Medicine {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  kode            String   @unique @db.VarChar(20)
+  namaGenerik     String   @map("nama_generik") @db.VarChar(200)
+  namaDagang      String?  @map("nama_dagang") @db.VarChar(200)
+  satuan          String   @db.VarChar(20)
+  kategori        KategoriObat @default(OBAT)
+  golongan        GolonganObat?
+  hargaBeli       Decimal  @default(0) @map("harga_beli") @db.Decimal(15, 2)
+  hargaJual       Decimal  @default(0) @map("harga_jual") @db.Decimal(15, 2)
+  stokMinimum     Int      @default(10) @map("stok_minimum")
+  isFormularium   Boolean  @default(true) @map("is_formularium")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  stocks           MedicineStock[]
+  prescriptionItems PrescriptionItem[]
+
+  @@index([namaGenerik])
+  @@map("medicines")
+}
+
+model MedicineStock {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  medicineId    BigInt   @map("medicine_id") @db.UnsignedBigInt
+  locationId    BigInt   @map("location_id") @db.UnsignedBigInt
+  batchNumber   String?  @map("batch_number") @db.VarChar(30)
+  expiredDate   DateTime? @map("expired_date") @db.Date
+  stok          Int      @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  medicine Medicine @relation(fields: [medicineId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+
+  @@index([expiredDate])
+  @@index([medicineId, locationId])
+  @@map("medicine_stocks")
+}
+
+model Prescription {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
+  prescriberId  BigInt   @map("prescriber_id") @db.UnsignedBigInt
+  noResep       String   @unique @map("no_resep") @db.VarChar(20)
+  status        StatusResep @default(DRAFT)
+  jenis         JenisResep  @default(NON_RACIKAN)
+  catatan       String?  @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  encounter  Encounter    @relation(fields: [encounterId], references: [id])
+  patient    Patient      @relation(fields: [patientId], references: [id])
+  prescriber Practitioner @relation(fields: [prescriberId], references: [id])
+  items      PrescriptionItem[]
+
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  prescriptionId  BigInt   @map("prescription_id") @db.UnsignedBigInt
+  medicineId      BigInt   @map("medicine_id") @db.UnsignedBigInt
+  jumlah          Decimal  @db.Decimal(10, 2)
+  dosis           String?  @db.VarChar(50)
+  rute            String?  @db.VarChar(30)
+  frekuensi       String?  @db.VarChar(50)
+  durasiHari      Int?     @map("durasi_hari")
+  aturanPakai     String?  @map("aturan_pakai") @db.Text
+  catatan         String?  @db.Text
+  hargaSatuan     Decimal? @map("harga_satuan") @db.Decimal(15, 2)
+  subtotal        Decimal? @db.Decimal(15, 2)
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id])
+  medicine     Medicine     @relation(fields: [medicineId], references: [id])
+
+  @@map("prescription_items")
+}
+
+// ==============================================
+// BILLING & KEUANGAN
+// ==============================================
+
+model Bill {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
+  noInvoice     String   @unique @map("no_invoice") @db.VarChar(20)
+  tanggal       DateTime @db.Date
+  totalTarif    Decimal  @default(0) @map("total_tarif") @db.Decimal(15, 2)
+  totalDiskon   Decimal  @default(0) @map("total_diskon") @db.Decimal(15, 2)
+  totalBayar    Decimal  @default(0) @map("total_bayar") @db.Decimal(15, 2)
+  sisaBayar     Decimal  @default(0) @map("sisa_bayar") @db.Decimal(15, 2)
+  penjamin      Penjamin
+  tarifInacbgs  Decimal  @default(0) @map("tarif_inacbgs") @db.Decimal(15, 2)
+  selisihKlaim  Decimal  @default(0) @map("selisih_klaim") @db.Decimal(15, 2)
+  status        StatusBill @default(OPEN)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  encounter Encounter  @relation(fields: [encounterId], references: [id])
+  patient   Patient    @relation(fields: [patientId], references: [id])
+  items     BillItem[]
+  payments  Payment[]
+
+  @@map("bills")
+}
+
+model BillItem {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  billId        BigInt   @map("bill_id") @db.UnsignedBigInt
+  kategori      KategoriBilling
+  deskripsi     String   @db.VarChar(500)
+  jumlah        Decimal  @default(1) @db.Decimal(10, 2)
+  tarif         Decimal  @db.Decimal(15, 2)
+  diskon        Decimal  @default(0) @db.Decimal(15, 2)
+  subtotal      Decimal  @db.Decimal(15, 2)
+  referenceType String?  @map("reference_type") @db.VarChar(50)
+  referenceId   BigInt?  @map("reference_id") @db.UnsignedBigInt
+
+  bill Bill @relation(fields: [billId], references: [id])
+
+  @@map("bill_items")
+}
+
+model Payment {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  billId     BigInt   @map("bill_id") @db.UnsignedBigInt
+  tanggal    DateTime
+  jumlah     Decimal  @db.Decimal(15, 2)
+  metode     MetodeBayar
+  referensi  String?  @db.VarChar(100)
+  kasirId    BigInt?  @map("kasir_id") @db.UnsignedBigInt
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  bill Bill @relation(fields: [billId], references: [id])
+
+  @@map("payments")
+}
+
+// ==============================================
+// LABORATORIUM
+// ==============================================
+
+model LabOrder {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
+  requesterId   BigInt   @map("requester_id") @db.UnsignedBigInt
+  noOrder       String   @unique @map("no_order") @db.VarChar(20)
+  tanggalOrder  DateTime @map("tanggal_order")
+  status        StatusLabOrder @default(ORDERED)
+  prioritas     PrioritasLab   @default(ROUTINE)
+  catatanKlinis String?  @map("catatan_klinis") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  encounter Encounter    @relation(fields: [encounterId], references: [id])
+  patient   Patient      @relation(fields: [patientId], references: [id])
+  requester Practitioner @relation(fields: [requesterId], references: [id])
+  items     LabOrderItem[]
+
+  @@map("lab_orders")
+}
+
+model LabOrderItem {
+  id           BigInt  @id @default(autoincrement()) @db.UnsignedBigInt
+  labOrderId   BigInt  @map("lab_order_id") @db.UnsignedBigInt
+  pemeriksaan  String  @db.VarChar(200)
+  loincCode    String? @map("loinc_code") @db.VarChar(20)
+  tarif        Decimal @default(0) @db.Decimal(15, 2)
+
+  labOrder LabOrder    @relation(fields: [labOrderId], references: [id])
+  results  LabResult[]
+
+  @@map("lab_order_items")
+}
+
+model LabResult {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  labOrderItemId  BigInt    @map("lab_order_item_id") @db.UnsignedBigInt
+  parameter       String    @db.VarChar(200)
+  hasil           String?   @db.VarChar(200)
+  satuan          String?   @db.VarChar(50)
+  nilaiNormal     String?   @map("nilai_normal") @db.VarChar(200)
+  flag            FlagHasil?
+  validatorId     BigInt?   @map("validator_id") @db.UnsignedBigInt
+  validatedAt     DateTime? @map("validated_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  labOrderItem LabOrderItem @relation(fields: [labOrderItemId], references: [id])
+
+  @@map("lab_results")
+}
+
+// ==============================================
+// RADIOLOGI
+// ==============================================
+
+model RadiologyOrder {
+  id                  BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId         BigInt   @map("encounter_id") @db.UnsignedBigInt
+  patientId           BigInt   @map("patient_id") @db.UnsignedBigInt
+  requesterId         BigInt   @map("requester_id") @db.UnsignedBigInt
+  noOrder             String   @unique @map("no_order") @db.VarChar(20)
+  accessionNumber     String?  @map("accession_number") @db.VarChar(30)
+  jenisPemeriksaan    String   @map("jenis_pemeriksaan") @db.VarChar(200)
+  modalitas           Modalitas
+  status              StatusRadOrder @default(ORDERED)
+  catatanKlinis       String?  @map("catatan_klinis") @db.Text
+  hasilBacaan         String?  @map("hasil_bacaan") @db.Text
+  kesan               String?  @db.Text
+  radiologistId       BigInt?  @map("radiologist_id") @db.UnsignedBigInt
+  tanggalPemeriksaan  DateTime? @map("tanggal_pemeriksaan")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  encounter Encounter @relation(fields: [encounterId], references: [id])
+  patient   Patient   @relation(fields: [patientId], references: [id])
+
+  @@map("radiology_orders")
+}
+
+// ==============================================
+// BED MANAGEMENT
+// ==============================================
+
+model Bed {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  locationId    BigInt   @map("location_id") @db.UnsignedBigInt
+  nomorBed      String   @map("nomor_bed") @db.VarChar(10)
+  kelas         KelasBed
+  status        StatusBed @default(TERSEDIA)
+  tarifPerHari  Decimal  @default(0) @map("tarif_per_hari") @db.Decimal(15, 2)
+
+  location   Location    @relation(fields: [locationId], references: [id])
+  encounters Encounter[]
+
+  @@unique([locationId, nomorBed])
+  @@map("beds")
+}
+
+// ==============================================
+// ANTREAN
+// ==============================================
+
+model QueueTicket {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  tanggal       DateTime @db.Date
+  locationId    BigInt   @map("location_id") @db.UnsignedBigInt
+  patientId     BigInt?  @map("patient_id") @db.UnsignedBigInt
+  nomorAntrean  Int      @map("nomor_antrean")
+  kodeBooking   String?  @map("kode_booking") @db.VarChar(20)
+  jenis         JenisAntrean @default(OFFLINE)
+  status        StatusAntrean @default(WAITING)
+  waktuDaftar   DateTime? @map("waktu_daftar")
+  waktuDipanggil DateTime? @map("waktu_dipanggil")
+  waktuSelesai  DateTime? @map("waktu_selesai")
+  estimasiMenit Int?     @map("estimasi_menit")
+
+  location Location @relation(fields: [locationId], references: [id])
+  patient  Patient? @relation(fields: [patientId], references: [id])
+
+  @@index([tanggal, locationId])
+  @@map("queue_tickets")
+}
+
+// ==============================================
+// KEPEGAWAIAN
+// ==============================================
+
+model Employee {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  practitionerId  BigInt?  @map("practitioner_id") @db.UnsignedBigInt
+  nip             String?  @db.VarChar(20)
+  namaLengkap     String   @map("nama_lengkap") @db.VarChar(200)
+  jabatan         String?  @db.VarChar(100)
+  unitKerja       String?  @map("unit_kerja") @db.VarChar(100)
+  statusPegawai   StatusPegawai? @map("status_pegawai")
+  tanggalMasuk    DateTime? @map("tanggal_masuk") @db.Date
+  rekeningBank    String?  @map("rekening_bank") @db.VarChar(30)
+  namaBank        String?  @map("nama_bank") @db.VarChar(50)
+  npwp            String?  @db.VarChar(20)
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  practitioner Practitioner? @relation(fields: [practitionerId], references: [id])
+  users        User[]
+
+  @@map("employees")
+}
+
+// ==============================================
+// LOGISTIK & INVENTARIS
+// ==============================================
+
+model InventoryItem {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  kode          String   @unique @db.VarChar(20)
+  nama          String   @db.VarChar(200)
+  kategori      KategoriInventaris?
+  satuan        String?  @db.VarChar(20)
+  stok          Int      @default(0)
+  stokMinimum   Int      @default(5) @map("stok_minimum")
+  lokasiGudang  String?  @map("lokasi_gudang") @db.VarChar(100)
+  hargaSatuan   Decimal  @default(0) @map("harga_satuan") @db.Decimal(15, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("inventory_items")
+}
+
+// ==============================================
+// MANAJEMEN ASET
+// ==============================================
+
+model Asset {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  kodeAset          String    @unique @map("kode_aset") @db.VarChar(30)
+  nama              String    @db.VarChar(200)
+  kategori          KategoriAset?
+  merk              String?   @db.VarChar(100)
+  serialNumber      String?   @map("serial_number") @db.VarChar(100)
+  tahunPerolehan    Int?      @map("tahun_perolehan")
+  hargaPerolehan    Decimal?  @map("harga_perolehan") @db.Decimal(15, 2)
+  umurEkonomis      Int?      @map("umur_ekonomis")
+  lokasi            String?   @db.VarChar(200)
+  kondisi           KondisiAset?
+  tanggalMaintenanceTerakhir DateTime? @map("tanggal_maintenance_terakhir") @db.Date
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  @@map("assets")
+}
+
+// ==============================================
+// AUDIT TRAIL
+// ==============================================
+
+model AuditLog {
+  id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  userId      BigInt?  @map("user_id") @db.UnsignedBigInt
+  action      AuditAction
+  entityType  String   @map("entity_type") @db.VarChar(50)
+  entityId    BigInt?  @map("entity_id") @db.UnsignedBigInt
+  oldValues   Json?    @map("old_values")
+  newValues   Json?    @map("new_values")
+  ipAddress   String?  @map("ip_address") @db.VarChar(45)
+  userAgent   String?  @map("user_agent") @db.VarChar(500)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ==============================================
+// SATUSEHAT SYNC LOG
+// ==============================================
+
+model SatusehatSyncLog {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  resourceType  String   @map("resource_type") @db.VarChar(50)
+  localId       BigInt   @map("local_id") @db.UnsignedBigInt
+  satusehatId   String?  @map("satusehat_id") @db.VarChar(64)
+  action        SyncAction
+  status        SyncStatus @default(PENDING)
+  requestBody   Json?    @map("request_body")
+  responseBody  Json?    @map("response_body")
+  errorMessage  String?  @map("error_message") @db.Text
+  retryCount    Int      @default(0) @map("retry_count")
+  nextRetryAt   DateTime? @map("next_retry_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([resourceType, localId])
+  @@map("satusehat_sync_logs")
+}
+
+// ==============================================
+// BPJS SYNC LOG
+// ==============================================
+
+model BpjsSyncLog {
+  id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  service       BpjsService
+  endpoint      String?  @db.VarChar(200)
+  method        HttpMethod
+  encounterId   BigInt?  @map("encounter_id") @db.UnsignedBigInt
+  requestBody   Json?    @map("request_body")
+  responseBody  Json?    @map("response_body")
+  responseCode  Int?     @map("response_code")
+  status        BpjsSyncStatus
+  errorMessage  String?  @map("error_message") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([service])
+  @@index([encounterId])
+  @@map("bpjs_sync_logs")
+}
+
+// ==============================================
+// ICD-10 REFERENCE TABLE
+// ==============================================
+
+model Icd10 {
+  id       BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  code     String @unique @db.VarChar(10)
+  display  String @db.VarChar(500)
+  category String? @db.VarChar(200)
+
+  @@index([display])
+  @@map("icd10_codes")
+}
+
+model Icd9cm {
+  id       BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  code     String @unique @db.VarChar(10)
+  display  String @db.VarChar(500)
+
+  @@index([display])
+  @@map("icd9cm_codes")
+}
+
+// ==============================================
+// ENUMS
+// ==============================================
+
+enum JenisKelamin {
+  L
+  P
+}
+
+enum GolonganDarah {
+  A
+  B
+  AB
+  O
+  TIDAK_DIKETAHUI @map("-")
+}
+
+enum StatusNikah {
+  BELUM_KAWIN
+  KAWIN
+  CERAI_HIDUP
+  CERAI_MATI
+}
+
+enum JenisNakes {
+  DOKTER_UMUM
+  DOKTER_SPESIALIS
+  DOKTER_GIGI
+  PERAWAT
+  BIDAN
+  APOTEKER
+  NUTRISIONIS
+  RADIOGRAFER
+  ANALIS_LAB
+  FISIOTERAPIS
+  LAINNYA
+}
+
+enum TipeLokasi {
+  POLI
+  BANGSAL
+  IGD
+  OK
+  ICU
+  PERINATOLOGI
+  LABORATORIUM
+  RADIOLOGI
+  FARMASI
+  GIZI
+  ADMIN
+  GUDANG
+  LAINNYA
+}
+
+enum Hari {
+  SENIN
+  SELASA
+  RABU
+  KAMIS
+  JUMAT
+  SABTU
+  MINGGU
+}
+
+enum TipeEncounter {
+  RAWAT_JALAN
+  IGD
+  RAWAT_INAP
+}
+
+enum KelasRawat {
+  KELAS_1
+  KELAS_2
+  KELAS_3
+  VIP
+  VVIP
+}
+
+enum StatusEncounter {
+  PLANNED
+  ARRIVED
+  IN_PROGRESS
+  ON_LEAVE
+  FINISHED
+  CANCELLED
+}
+
+enum Penjamin {
+  UMUM
+  BPJS
+  ASURANSI
+  JAMKESDA
+  PERUSAHAAN
+}
+
+enum CaraMasuk {
+  SENDIRI
+  RUJUKAN
+  LAHIR
+  PINDAHAN
+}
+
+enum CaraKeluar {
+  ATAS_PERSETUJUAN
+  DIRUJUK
+  PULANG_PAKSA
+  MENINGGAL
+  LARI
+  PINDAH_RS
+}
+
+enum TriaseLevel {
+  ESI_1
+  ESI_2
+  ESI_3
+  ESI_4
+  ESI_5
+}
+
+enum TipeDiagnosis {
+  PRIMER
+  SEKUNDER
+  TAMBAHAN
+}
+
+enum TipeRekamMedis {
+  SOAP
+  ADIME
+  SBAR
+  CPPT
+  ASESMEN_AWAL
+  CATATAN_KEPERAWATAN
+  RESUME_MEDIS
+}
+
+enum StatusObservation {
+  REGISTERED
+  PRELIMINARY
+  FINAL
+  AMENDED
+  CANCELLED
+}
+
+enum KategoriObat {
+  OBAT
+  ALKES
+  BHP
+  LAINNYA
+}
+
+enum GolonganObat {
+  BEBAS
+  BEBAS_TERBATAS
+  KERAS
+  NARKOTIKA
+  PSIKOTROPIKA
+}
+
+enum StatusResep {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  DISPENSED
+  PARTIALLY_DISPENSED
+  CANCELLED
+}
+
+enum JenisResep {
+  RACIKAN
+  NON_RACIKAN
+}
+
+enum StatusBill {
+  OPEN
+  CLOSED
+  VOID
+}
+
+enum KategoriBilling {
+  JASA_DOKTER
+  JASA_PERAWAT
+  OBAT
+  ALKES
+  BHP
+  LABORATORIUM
+  RADIOLOGI
+  TINDAKAN
+  KAMAR
+  ADMINISTRASI
+  LAINNYA
+}
+
+enum MetodeBayar {
+  TUNAI
+  DEBIT
+  KREDIT
+  TRANSFER
+  QRIS
+  EWALLET
+}
+
+enum StatusLabOrder {
+  ORDERED
+  SPECIMEN_COLLECTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PrioritasLab {
+  ROUTINE
+  URGENT
+  STAT
+}
+
+enum FlagHasil {
+  NORMAL
+  HIGH
+  LOW
+  CRITICAL_HIGH
+  CRITICAL_LOW
+}
+
+enum Modalitas {
+  XRAY
+  CT
+  MRI
+  USG
+  FLUOROSCOPY
+  MAMMOGRAPHY
+}
+
+enum StatusRadOrder {
+  ORDERED
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum KelasBed {
+  KELAS_1
+  KELAS_2
+  KELAS_3
+  VIP
+  VVIP
+  ICU
+  NICU
+  PICU
+}
+
+enum StatusBed {
+  TERSEDIA
+  TERISI
+  MAINTENANCE
+  RESERVASI
+}
+
+enum JenisAntrean {
+  ONLINE
+  OFFLINE
+}
+
+enum StatusAntrean {
+  WAITING
+  CALLED
+  SERVING
+  DONE
+  CANCELLED
+}
+
+enum StatusPegawai {
+  PNS
+  PPPK
+  KONTRAK
+  HONORER
+  MAGANG
+}
+
+enum KategoriInventaris {
+  ATK
+  LINEN
+  ALKES
+  OBAT
+  RT
+  LAINNYA
+}
+
+enum KategoriAset {
+  ALAT_MEDIS
+  KENDARAAN
+  BANGUNAN
+  MEUBELAIR
+  KOMPUTER
+  LAINNYA
+}
+
+enum KondisiAset {
+  BAIK
+  RUSAK_RINGAN
+  RUSAK_BERAT
+  DIHAPUSKAN
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PRINT
+  EXPORT
+  FHIR_SYNC
+  BPJS_SYNC
+}
+
+enum SyncAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum SyncStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  RETRYING
+}
+
+enum BpjsService {
+  VCLAIM
+  SEP
+  ECLAIM
+  ANTROL
+  APLICARES
+  ICARE
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  DELETE
+}
+
+enum BpjsSyncStatus {
+  SUCCESS
+  FAILED
+}
