@@ -26,6 +26,8 @@ export default function LaboratoriumPage() {
   const [filterStatus, setFilterStatus] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [resultInputs, setResultInputs] = useState<Record<number, Array<{ parameter: string; hasil: string; satuan: string; nilaiNormal: string; flag: string }>>>({});
+  const [criticalAlerts, setCriticalAlerts] = useState<any[]>([]);
+  const [alertStats, setAlertStats] = useState<any>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -39,9 +41,18 @@ export default function LaboratoriumPage() {
       setStats(st.data);
     } catch (e) { console.error(e); }
     setLoading(false);
+    // Fetch critical alerts
+    apiClient.get('/lab/alerts/active').then((r) => setCriticalAlerts(r.data)).catch(() => {});
+    apiClient.get('/lab/alerts/stats').then((r) => setAlertStats(r.data)).catch(() => {});
   }, [filterStatus]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  const acknowledgeAlert = async (resultId: number) => {
+    await apiClient.post(`/lab/alerts/${resultId}/acknowledge`);
+    setCriticalAlerts((prev) => prev.filter((a) => a.id !== resultId));
+    apiClient.get('/lab/alerts/stats').then((r) => setAlertStats(r.data)).catch(() => {});
+  };
 
   const openDetail = async (order: any) => {
     try {
@@ -86,6 +97,34 @@ export default function LaboratoriumPage() {
   return (
     <div>
       <PageHeader title="Laboratorium" description="Kelola order, input hasil, dan validasi lab" />
+
+      {/* Critical Alert Banner */}
+      {criticalAlerts.length > 0 && (
+        <div className="mb-4 p-4 rounded-2xl border" style={{ background: 'var(--rose-dim)', borderColor: 'rgba(253,164,175,0.2)' }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="dot-live" style={{ background: 'var(--rose)' }} />
+            <span className="text-[13px] font-semibold" style={{ color: 'var(--rose)' }}>
+              {criticalAlerts.length} Hasil Lab KRITIS — Perlu Perhatian Segera
+            </span>
+          </div>
+          <div className="space-y-2">
+            {criticalAlerts.slice(0, 5).map((alert: any) => (
+              <div key={alert.id} className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                <div>
+                  <span className="text-[12px] font-semibold" style={{ color: 'var(--text-1)' }}>{alert.patientName}</span>
+                  <span className="text-[11px] mx-2" style={{ color: 'var(--text-3)' }}>({alert.patientNoRm})</span>
+                  <span className="badge badge-danger ml-1">{alert.flag}</span>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-2)' }}>
+                    {alert.parameter}: <strong style={{ color: 'var(--rose)' }}>{alert.hasil} {alert.satuan}</strong> (Normal: {alert.nilaiNormal})
+                  </p>
+                  <p className="text-[10px]" style={{ color: 'var(--text-3)' }}>Dokter: {alert.requesterName}</p>
+                </div>
+                <button onClick={() => acknowledgeAlert(alert.id)} className="btn btn-danger btn-xs">Acknowledge</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       {stats && (

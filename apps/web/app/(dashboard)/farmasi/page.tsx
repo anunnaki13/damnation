@@ -20,6 +20,7 @@ export default function FarmasiPage() {
   const [worklist, setWorklist] = useState<any[]>([]);
   const [history, setHistory] = useState<any[]>([]);
   const [stockDash, setStockDash] = useState<any>(null);
+  const [predictions, setPredictions] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchWorklist = useCallback(async () => {
@@ -50,6 +51,7 @@ export default function FarmasiPage() {
   useEffect(() => {
     fetchWorklist();
     fetchStockDashboard();
+    apiClient.get('/pharmacy/stock/predictions?days=7').then((r) => setPredictions(r.data)).catch(() => {});
   }, [fetchWorklist, fetchStockDashboard]);
 
   useEffect(() => {
@@ -114,6 +116,41 @@ export default function FarmasiPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Predictive Stock Alert */}
+      {predictions && predictions.predictions.length > 0 && (
+        <div className="mb-4 p-4 rounded-2xl border" style={{ background: 'var(--amber-dim)', borderColor: 'rgba(252,211,77,0.15)' }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="dot-live" style={{ background: 'var(--amber)' }} />
+              <span className="text-[13px] font-semibold" style={{ color: 'var(--amber)' }}>
+                Prediksi Kehabisan Stok — {predictions.summary.urgent} obat dalam 7 hari
+                {predictions.summary.critical > 0 && <span style={{ color: 'var(--rose)' }}> ({predictions.summary.critical} KRITIS &lt;3 hari)</span>}
+              </span>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            {predictions.predictions.slice(0, 8).map((p: any) => (
+              <div key={p.medicineId} className="flex items-center justify-between p-2.5 rounded-xl" style={{ background: 'rgba(0,0,0,0.2)' }}>
+                <div className="flex items-center gap-2">
+                  {p.isCritical && <span className="badge badge-danger">KRITIS</span>}
+                  {p.isUrgent && !p.isCritical && <span className="badge badge-warning">SEGERA</span>}
+                  <span className="text-[12px]" style={{ color: 'var(--text-1)' }}>{p.namaGenerik}</span>
+                  <span className="text-[10px] font-mono" style={{ color: 'var(--text-3)' }}>{p.kode}</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-[12px] font-semibold" style={{ color: p.isCritical ? 'var(--rose)' : 'var(--amber)' }}>
+                    {p.daysUntilStockout} hari lagi
+                  </span>
+                  <span className="text-[10px] ml-2" style={{ color: 'var(--text-3)' }}>
+                    (stok: {p.currentStock}, pakai: {p.avgDailyUsage}/hr)
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

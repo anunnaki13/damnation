@@ -26,9 +26,30 @@ export default function SatusehatPage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const [retrying, setRetrying] = useState(false);
+  const handleRetryFailed = async () => {
+    setRetrying(true);
+    try {
+      const res = await apiClient.post('/satusehat/retry-failed');
+      alert(`${res.data.message}\n\nSuccess: ${res.data.success}\nFailed: ${res.data.failed}`);
+      fetchData();
+    } catch (err: any) { alert(err.response?.data?.message || 'Retry gagal'); }
+    setRetrying(false);
+  };
+
   return (
     <div>
-      <PageHeader title="Integrasi SATUSEHAT" description="Monitor sinkronisasi HL7 FHIR R4 ke SATUSEHAT Kemenkes" />
+      <PageHeader title="Integrasi SATUSEHAT" description="Monitor sinkronisasi HL7 FHIR R4 ke SATUSEHAT Kemenkes"
+        action={
+          <div className="flex gap-2">
+            {(stats?.failed > 0 || stats?.unsyncedEncounters > 0) && (
+              <button onClick={handleRetryFailed} disabled={retrying} className="btn btn-danger btn-sm">
+                {retrying ? 'Retrying...' : `Retry Failed (${(stats?.failed || 0) + (stats?.unsyncedEncounters || 0)})`}
+              </button>
+            )}
+          </div>
+        }
+      />
 
       {/* Connection Status */}
       <div className="glass-card-static p-6 mb-6 relative overflow-hidden">

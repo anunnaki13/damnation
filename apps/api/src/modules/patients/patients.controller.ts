@@ -3,6 +3,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { PatientsService } from './patients.service';
+import { TimelineService } from './timeline.service';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdatePatientDto } from './dto/update-patient.dto';
 import { SearchPatientDto } from './dto/search-patient.dto';
@@ -12,7 +13,10 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 @ApiBearerAuth()
 @Controller('patients')
 export class PatientsController {
-  constructor(private patientsService: PatientsService) {}
+  constructor(
+    private patientsService: PatientsService,
+    private timelineService: TimelineService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Registrasi pasien baru' })
@@ -30,6 +34,12 @@ export class PatientsController {
   @ApiOperation({ summary: 'Detail pasien by ID' })
   findById(@Param('id', ParseIntPipe) id: number) {
     return this.patientsService.findById(id);
+  }
+
+  @Get(':id/timeline')
+  @ApiOperation({ summary: 'Patient journey timeline — seluruh riwayat chronological' })
+  getTimeline(@Param('id', ParseIntPipe) id: number, @Query('limit') limit?: number) {
+    return this.timelineService.getPatientTimeline(id, limit || 50);
   }
 
   @Patch(':id')

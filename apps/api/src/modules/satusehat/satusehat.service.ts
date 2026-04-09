@@ -154,6 +154,34 @@ export class SatusehatService {
     return data.map((d) => ({ ...d, id: Number(d.id), localId: Number(d.localId) }));
   }
 
+  /** Retry all failed syncs */
+  async retryAllFailed() {
+    // Get all unsynced finished encounters
+    const unsynced = await this.prisma.encounter.findMany({
+      where: { fhirSynced: false, status: 'FINISHED' },
+      select: { id: true, noRawat: true },
+      take: 50,
+    });
+
+    const results = [];
+    for (const enc of unsynced) {
+      try {
+        const r = await this.syncEncounter(Number(enc.id));
+        results.push({ encounterId: Number(enc.id), noRawat: enc.noRawat, status: 'SUCCESS', resources: r.totalResources });
+      } catch (e: any) {
+        results.push({ encounterId: Number(enc.id), noRawat: enc.noRawat, status: 'FAILED', error: e.message });
+      }
+    }
+
+    return {
+      message: `Retry completed: ${results.filter((r) => r.status === 'SUCCESS').length}/${results.length} success`,
+      total: results.length,
+      success: results.filter((r) => r.status === 'SUCCESS').length,
+      failed: results.filter((r) => r.status === 'FAILED').length,
+      details: results,
+    };
+  }
+
   /** Dashboard — sync statistics */
   async getSyncStats() {
     const [total, success, failed, pending, unsyncedEncounters] = await Promise.all([
