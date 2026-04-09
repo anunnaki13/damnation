@@ -14,7 +14,9 @@ RSUD Petala Bumi Provinsi Riau
 
 ## Tentang Proyek
 
-SIMRS Petala Bumi adalah sistem informasi rumah sakit berbasis web yang dibangun dari nol (*ground-up*) untuk menggantikan SIMRS Khanza (Java Swing/desktop). Sistem ini dirancang untuk memenuhi standar regulasi Kemenkes RI, terintegrasi penuh dengan **SATUSEHAT (HL7 FHIR R4)** dan **BPJS Kesehatan**.
+SIMRS Petala Bumi adalah sistem informasi rumah sakit berbasis web yang dibangun dari nol (*ground-up*) untuk menggantikan **SIMRS Khanza** (Java Swing/desktop). Sistem ini dirancang untuk memenuhi standar regulasi Kemenkes RI, terintegrasi penuh dengan **SATUSEHAT (HL7 FHIR R4)** dan **BPJS Kesehatan**.
+
+Database schema dirancang **kompatibel dengan struktur database Khanza** untuk memudahkan proses migrasi data (ETL) dari sistem lama ke sistem baru.
 
 | Item | Detail |
 |------|--------|
@@ -22,6 +24,7 @@ SIMRS Petala Bumi adalah sistem informasi rumah sakit berbasis web yang dibangun
 | **Vendor** | CV Panda Global Teknologi, Pekanbaru |
 | **Total Modul** | 23 modul (11 Front Office + 8 Back Office + 4 Integrasi) |
 | **Kontrak** | 12 bulan, 4 fase development |
+| **Migrasi** | ETL dari SIMRS Khanza (MySQL) ke schema baru |
 
 ---
 
@@ -55,7 +58,7 @@ INTEGRATION         SATUSEHAT FHIR R4 | BPJS VClaim/SEP/INA-CBGs/Antrol
 | **Database** | MySQL 8.0, Prisma 5 ORM |
 | **Cache/Queue** | Redis 7, BullMQ |
 | **File Storage** | MinIO (S3-compatible) |
-| **Mobile** | React Native (Expo) |
+| **Mobile** | React Native (Expo) — Phase 4 |
 | **Infra** | Docker, Nginx, GitHub Actions CI/CD |
 | **Monitoring** | Prometheus, Grafana, Winston + Loki |
 
@@ -69,34 +72,75 @@ simrs-petala-bumi/
 │   ├── api/                    # NestJS Backend API
 │   │   ├── src/
 │   │   │   ├── modules/        # 23 business modules
+│   │   │   │   ├── auth/       # JWT + RBAC authentication
+│   │   │   │   ├── users/      # User management
+│   │   │   │   ├── patients/   # Master pasien (Khanza: pasien)
+│   │   │   │   ├── practitioners/ # Dokter & nakes (Khanza: dokter+petugas)
+│   │   │   │   ├── locations/  # Lokasi/unit (Khanza: poliklinik+bangsal)
+│   │   │   │   ├── pharmacy/   # Farmasi/obat (Khanza: databarang)
+│   │   │   │   └── ...         # 17 modul lainnya
 │   │   │   ├── common/         # Guards, interceptors, pipes, filters
 │   │   │   ├── integrations/   # FHIR, BPJS, SIRS clients
-│   │   │   ├── config/         # App & env configuration
+│   │   │   ├── config/         # Prisma service, app config
 │   │   │   └── database/       # Prisma schema, migrations, seeds
-│   │   └── test/               # E2E tests
+│   │   └── test/
 │   │
 │   ├── web/                    # Next.js Frontend
-│   │   ├── app/                # App Router pages (per modul)
-│   │   ├── components/         # Shared UI components
-│   │   ├── hooks/              # Custom React hooks
-│   │   ├── lib/                # API client, utilities
-│   │   └── styles/             # Tailwind config, design tokens
+│   │   ├── app/
+│   │   │   ├── (auth)/login/   # Halaman login
+│   │   │   ├── (dashboard)/    # Dashboard layout + semua modul
+│   │   │   │   ├── dashboard/  # Dashboard utama
+│   │   │   │   ├── admin/      # Master data (pasien, dokter, lokasi, obat, jadwal, users)
+│   │   │   │   ├── registrasi/ # Registrasi & admisi
+│   │   │   │   ├── rawat-jalan/ # Rawat jalan
+│   │   │   │   └── ...
+│   │   ├── components/         # UI components (DataTable, Modal, etc.)
+│   │   ├── hooks/              # Zustand stores, custom hooks
+│   │   └── lib/                # API client, utilities
 │   │
 │   └── mobile/                 # React Native (Expo) — Phase 4
 │
 ├── packages/
-│   ├── shared/                 # Types, constants, Zod validators, utils
+│   ├── shared/                 # Types, Zod validators, constants, utils
 │   ├── ui/                     # Design system components
 │   ├── fhir/                   # FHIR R4 resource builders & mappers
-│   └── eslint-config/          # Shared ESLint configuration
+│   └── eslint-config/          # Shared ESLint config
 │
-├── docker/                     # Docker Compose, Dockerfiles, Nginx
+├── docker/                     # Docker Compose (dev & prod), Dockerfiles, Nginx
 ├── scripts/                    # ETL migration, seed scripts
 ├── blueprint/                  # Technical blueprint & specs
-├── turbo.json                  # Turborepo configuration
-├── pnpm-workspace.yaml         # PNPM workspace config
-└── .env.example                # Environment variables template
+└── docs/                       # Documentation
+    ├── DATABASE.md             # Schema documentation & Khanza mapping
+    ├── API.md                  # API endpoints reference
+    ├── DEVELOPMENT.md          # Development guide
+    └── MIGRATION.md            # Khanza → new system migration guide
 ```
+
+---
+
+## Kompatibilitas Database Khanza
+
+Schema database dirancang dengan **mapping langsung ke tabel Khanza** untuk memudahkan migrasi:
+
+| Tabel Khanza | Model Baru | Mapping Kunci |
+|---|---|---|
+| `pasien` | `Patient` | `no_rkm_medis`→`noRm`, `no_ktp`→`nik`, `no_peserta`→`noBpjs` |
+| `dokter` + `petugas` | `Practitioner` | `kd_dokter`→`kdDokter`, `kd_sps`→`Spesialis` |
+| `pegawai` | `Employee` | `nik`→`nip`, `gapok`, `stts_aktif` |
+| `poliklinik` + `bangsal` | `Location` | `kd_poli`→`kdPoliKhanza`, `kd_bangsal`→`kdBangsalKhanza` |
+| `kamar` | `Bed` | `kd_kamar`→`nomorBed`, `trf_kamar`→`tarifPerHari` |
+| `reg_periksa` | `Encounter` | `no_rawat` (format `YYYY/MM/DD/NNNNNN`), `biaya_reg`, `stts_daftar` |
+| `rawat_jl_dr/pr/drpr` | `Procedure` | Tarif breakdown: `material`, `bhp`, `tarif_dr/pr`, `kso` |
+| `databarang` | `Medicine` | 7 tier harga: `ralan`, `kelas1-3`, `utama`, `vip`, `vvip` |
+| `resep_obat` + `detail_pemberian_obat` | `Prescription` + `PrescriptionItem` | `embalase`, `tuslah`, `no_batch` |
+| `diagnosa_pasien` + `penyakit` | `Diagnosis` + `Penyakit` | `kd_penyakit` (ICD-10), `prioritas` |
+| `periksa_lab` + `detail_periksa_lab` | `LabOrder` + `LabResult` | `id_template`, tarif breakdown |
+| `periksa_radiologi` | `RadiologyOrder` | `proyeksi`, `kV`, `mAS`, dosis, tarif breakdown |
+| `bridging_sep` | `BridgingSep` | Full SEP: `no_sep`, `kd_dpjp`, `kls_rawat`, `no_kartu` |
+| `kamar_inap` | `KamarInap` | `tgl/jam_masuk/keluar`, `lama`, `stts_pulang` |
+| `penjab` | `Penjab` | `kd_pj`, `png_jawab`, `nama_perusahaan` |
+
+Lihat [docs/DATABASE.md](docs/DATABASE.md) untuk detail lengkap dan [docs/MIGRATION.md](docs/MIGRATION.md) untuk panduan ETL.
 
 ---
 
@@ -105,7 +149,7 @@ simrs-petala-bumi/
 ### Front Office (11 Modul)
 | # | Modul | Fase | Status |
 |---|-------|------|--------|
-| 1 | Registrasi & Admisi | Phase 1 | Planned |
+| 1 | Registrasi & Admisi | Phase 1 | **In Progress** |
 | 2 | Rawat Jalan | Phase 1 | Planned |
 | 3 | IGD | Phase 2 | Planned |
 | 4 | Rawat Inap | Phase 3 | Planned |
@@ -114,7 +158,7 @@ simrs-petala-bumi/
 | 7 | Laboratorium | Phase 3 | Planned |
 | 8 | Radiologi | Phase 3 | Planned |
 | 9 | Pendaftaran Online | Phase 1 | Planned |
-| 10 | Manajemen Antrean | Phase 1 | Planned |
+| 10 | Manajemen Antrean | Phase 1 | **In Progress** |
 | 11 | Gizi/Dapur | Phase 3 | Planned |
 
 ### Back Office (8 Modul)
@@ -135,37 +179,15 @@ simrs-petala-bumi/
 | 20 | Bridging BPJS Kesehatan | Phase 2 | Planned |
 | 21 | Dashboard & Analitik | Phase 4 | Planned |
 
----
-
-## Development Roadmap
-
-```
-Phase 1 — Foundation (Bulan 1-3)
-├── Monorepo, Docker, Database, Auth, CI/CD
-├── Master Data (Pasien, Dokter, Lokasi, Obat)
-├── Registrasi & Admisi + Manajemen Antrean
-└── Rawat Jalan + Pendaftaran Online
-
-Phase 2 — Core Clinical (Bulan 4-6)
-├── Farmasi/Apotek + E-Resep
-├── Billing & Kasir
-├── Bridging BPJS (VClaim, SEP, INA-CBGs, Antrol)
-└── IGD
-
-Phase 3 — Advanced Clinical (Bulan 7-9)
-├── Rawat Inap + Bed Management
-├── Laboratorium + Radiologi
-├── Kamar Operasi + Gizi
-├── RME Terstandarisasi (SOAP, ADIME, CPPT)
-└── Integrasi SATUSEHAT (FHIR Engine)
-
-Phase 4 — Finalization (Bulan 10-12)
-├── Dashboard Analitik + Pelaporan SIRS (RL 1-6)
-├── Keuangan, Kepegawaian, Logistik, Aset
-├── Aplikasi Mobile (Pasien, Dokter, Manajemen)
-├── Migrasi Data Khanza (ETL)
-└── UAT, Pelatihan, Go-Live
-```
+### Foundation (Selesai)
+| Komponen | Status |
+|----------|--------|
+| Monorepo Turborepo | Done |
+| Auth (JWT + RBAC) | Done |
+| Prisma Schema (Khanza-compatible) | Done |
+| Master Data CRUD (Pasien, Dokter, Lokasi, Obat, Jadwal, Users) | Done |
+| Docker Compose (MySQL, Redis, MinIO) | Done |
+| UI Components (DataTable, Modal, Form, etc.) | Done |
 
 ---
 
@@ -197,12 +219,18 @@ docker compose -f docker/docker-compose.yml up -d
 # 5. Run database migrations
 pnpm db:migrate
 
-# 6. Seed master data (ICD-10, LOINC, kode wilayah)
+# 6. Seed master data
 pnpm db:seed
 
 # 7. Start development servers
 pnpm dev
 ```
+
+### Default Login
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | ADMIN (full access) |
 
 ### Available Scripts
 
@@ -212,7 +240,7 @@ pnpm build            # Build all apps for production
 pnpm lint             # Lint all packages
 pnpm format           # Format code with Prettier
 pnpm db:migrate       # Run Prisma migrations
-pnpm db:seed          # Seed database
+pnpm db:seed          # Seed database (roles, locations, sample data)
 pnpm db:studio        # Open Prisma Studio (DB browser)
 pnpm clean            # Clean all build artifacts
 ```
@@ -226,59 +254,28 @@ pnpm clean            # Clean all build artifacts
 | API Docs (Swagger) | http://localhost:3001/api/docs |
 | Prisma Studio | http://localhost:5555 |
 | MinIO Console | http://localhost:9001 |
-| Grafana | http://localhost:3002 |
 
 ---
 
-## Integrasi Eksternal
+## Dokumentasi
 
-### SATUSEHAT (HL7 FHIR R4)
-- Sinkronisasi otomatis setiap encounter selesai
-- Resource: Encounter, Condition, Observation, Procedure, MedicationRequest, Composition, dll
-- Background queue dengan retry & exponential backoff
-- Environment: Dev → Staging → Production
-
-### BPJS Kesehatan
-- **VClaim** — Cek kepesertaan, rujukan, penerbitan SEP
-- **INA-CBGs** — Grouper klaim, tarif casemix
-- **Antrol** — Sinkronisasi antrean Mobile JKN
-- **Aplicares** — Update ketersediaan tempat tidur
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [docs/DATABASE.md](docs/DATABASE.md) | Schema database, ERD, Khanza mapping detail |
+| [docs/API.md](docs/API.md) | Referensi API endpoints per modul |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Panduan development, konvensi, cara menambah modul |
+| [docs/MIGRATION.md](docs/MIGRATION.md) | Panduan migrasi data Khanza → sistem baru |
+| [blueprint/](blueprint/) | Blueprint teknis lengkap (23 modul) |
 
 ---
 
 ## Keamanan & Compliance
 
 - JWT Authentication (15min access + 7d refresh token)
-- RBAC granular per modul + per aksi (10+ roles)
+- RBAC granular per modul + per aksi (10 roles)
 - MFA (TOTP) untuk akun sensitif
-- AES-256 encryption untuk data PII
 - Audit trail komprehensif (semua CUD + akses data sensitif)
 - Compliance: Permenkes 82/2013, Permenkes 24/2022, UU PDP 27/2022
-
----
-
-## Konvensi
-
-| Area | Konvensi |
-|------|----------|
-| Language | TypeScript strict mode |
-| API Pattern | Controller → Service → Prisma Repository |
-| Naming (TS) | camelCase |
-| Naming (DB) | snake_case |
-| Naming (Routes) | kebab-case |
-| Validation | Zod schemas (shared FE/BE) |
-| Testing | Jest (unit) + Supertest (e2e), target 80% coverage |
-| Commit | Conventional Commits |
-
----
-
-## Regulasi & Referensi
-
-- Permenkes No. 82 Tahun 2013 — SIMRS
-- Permenkes No. 24 Tahun 2022 — Rekam Medis
-- KMK No. HK.01.07/MENKES/1423/2022 — Pedoman RME
-- UU No. 27 Tahun 2022 — Perlindungan Data Pribadi
-- SE No. HK.02.01/MENKES/1030/2023 — Integrasi SATUSEHAT
 
 ---
 
@@ -289,4 +286,4 @@ Pekanbaru, Riau, Indonesia
 
 ---
 
-> *SIMRS Petala Bumi — Sistem informasi rumah sakit modern, terintegrasi, dan comply dengan regulasi Kemenkes RI.*
+> *SIMRS Petala Bumi — Sistem informasi rumah sakit modern, terintegrasi, kompatibel Khanza, dan comply dengan regulasi Kemenkes RI.*
