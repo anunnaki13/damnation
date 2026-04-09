@@ -17,16 +17,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return null;
 
   return (
-    <div className="flex h-screen" style={{ background: 'linear-gradient(180deg, #0c0c1d 0%, #080818 100%)' }}>
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-[20%] w-[800px] h-[600px] bg-[#7c5cfc]/[0.015] rounded-full blur-[200px]" />
-        <div className="absolute bottom-0 right-[10%] w-[600px] h-[500px] bg-[#2dd4bf]/[0.01] rounded-full blur-[180px]" />
+    <div className="flex h-screen" style={{ background: '#09090F' }}>
+      {/* Background orbs — design system spec */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[10%] w-[500px] h-[500px] rounded-full blur-[120px] animate-drift"
+          style={{ background: 'rgba(139,92,246,0.18)' }} />
+        <div className="absolute bottom-[-15%] right-[5%] w-[420px] h-[420px] rounded-full blur-[120px] animate-drift"
+          style={{ background: 'rgba(94,234,212,0.12)', animationDelay: '10s' }} />
+        <div className="absolute top-[40%] left-[50%] w-[300px] h-[300px] rounded-full blur-[120px] animate-drift"
+          style={{ background: 'rgba(253,164,175,0.08)', animationDelay: '20s' }} />
       </div>
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <Header />
         <main className="flex-1 overflow-y-auto">
-          <div className="px-8 py-6 max-w-[1440px] mx-auto">{children}</div>
+          <div className="px-7 py-7 max-w-[1440px] mx-auto">{children}</div>
         </main>
       </div>
     </div>
