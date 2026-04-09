@@ -1,239 +1,235 @@
 # API Reference — SIMRS Petala Bumi
 
 **Base URL:** `http://localhost:3001/api`
-**Swagger Docs:** `http://localhost:3001/api/docs`
-**Auth:** Bearer JWT token (except endpoints marked Public)
-**Total Endpoints:** 126
+**Swagger:** `http://localhost:3001/api/docs`
+**Auth:** Bearer JWT (except Public endpoints)
+**Total: 136 endpoints across 22 modules**
 
 ---
 
-## Auth (`/auth`) — 2 endpoints
+## Auth — 2 endpoints
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/auth/login` | Public | Login → access + refresh token |
-| POST | `/auth/refresh` | Public | Refresh access token |
+| POST | `/auth/login` | Public | Login → tokens |
+| POST | `/auth/refresh` | Public | Refresh token |
 
-## Patients (`/patients`) — 4 endpoints
+## Patients — 4 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/patients` | Registrasi pasien baru (auto No.RM) |
-| GET | `/patients/search` | Search (keyword: RM/NIK/nama/BPJS/HP) |
-| GET | `/patients/:id` | Detail pasien + 10 kunjungan terakhir |
-| PATCH | `/patients/:id` | Update data pasien |
+| POST | `/patients` | Register patient (auto No.RM) |
+| GET | `/patients/search?keyword=` | Search RM/NIK/name/BPJS |
+| GET | `/patients/:id` | Detail + encounters |
+| PATCH | `/patients/:id` | Update |
 
-## Practitioners (`/practitioners`) — 3 endpoints
+## Practitioners — 3 + Schedules — 5 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/practitioners` | Tambah dokter/nakes |
-| GET | `/practitioners` | Daftar (filter: spesialisasi) |
-| GET | `/practitioners/:id` | Detail + jadwal aktif |
+| POST | `/practitioners` | Add doctor/staff |
+| GET | `/practitioners` | List (filter: spesialisasi) |
+| GET | `/practitioners/:id` | Detail + schedules |
+| POST | `/schedules` | Create schedule |
+| GET | `/schedules/location/:id` | Per poli (filter: hari) |
+| GET | `/schedules/practitioner/:id` | Per doctor |
+| PATCH | `/schedules/:id` | Update |
+| DELETE | `/schedules/:id` | Deactivate |
 
-## Schedules (`/schedules`) — 5 endpoints
+## Locations — 5 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/schedules` | Buat jadwal praktik |
-| GET | `/schedules/location/:id` | Jadwal per poli (filter: hari) |
-| GET | `/schedules/practitioner/:id` | Jadwal per dokter |
-| PATCH | `/schedules/:id` | Update jadwal |
-| DELETE | `/schedules/:id` | Nonaktifkan jadwal |
-
-## Locations (`/locations`) — 5 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/locations` | Tambah lokasi/unit |
-| GET | `/locations` | Daftar (filter: tipe) |
-| GET | `/locations/:id` | Detail + beds + jadwal |
+| POST | `/locations` | Add location |
+| GET | `/locations?tipe=` | List |
+| GET | `/locations/:id` | Detail + beds + schedules |
 | PATCH | `/locations/:id` | Update |
 | DELETE | `/locations/:id` | Soft delete |
 
-## Medicines (`/medicines`) — 7 endpoints
+## Medicines — 7 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/medicines` | Tambah obat/alkes |
-| GET | `/medicines` | Daftar (search, filter kategori) |
-| GET | `/medicines/stock-alerts` | Stok di bawah minimum |
-| GET | `/medicines/expiring` | Obat expired <90 hari |
-| GET | `/medicines/:id` | Detail + stok per lokasi |
+| POST | `/medicines` | Add medicine |
+| GET | `/medicines?keyword=&kategori=` | List |
+| GET | `/medicines/stock-alerts` | Below minimum |
+| GET | `/medicines/expiring?days=90` | Expiring soon |
+| GET | `/medicines/:id` | Detail + stock |
 | PATCH | `/medicines/:id` | Update |
 | DELETE | `/medicines/:id` | Soft delete |
 
-## Users (`/users`) — 3 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/users` | Buat user + assign roles |
-| GET | `/users` | Daftar users |
-| GET | `/users/:id` | Detail user |
+## Users — 3 endpoints
+| POST | `/users` | Create + roles |
+| GET | `/users` | List |
+| GET | `/users/:id` | Detail |
 
-## Registration (`/registration`) — 6 endpoints
+## Registration — 6 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/registration/encounter` | Daftarkan kunjungan baru (auto no_rawat, antrean) |
-| GET | `/registration/today` | Worklist hari ini (filter poli/status) |
-| GET | `/registration/stats` | Statistik registrasi hari ini |
-| GET | `/registration/encounter/:id` | Detail kunjungan |
+| POST | `/registration/encounter` | New visit (auto no_rawat + queue) |
+| GET | `/registration/today?locationId=&status=` | Today worklist |
+| GET | `/registration/stats` | Today statistics |
+| GET | `/registration/encounter/:id` | Detail |
 | PATCH | `/registration/encounter/:id/status` | Update status |
-| PATCH | `/registration/encounter/:id/cancel` | Batalkan kunjungan |
+| PATCH | `/registration/encounter/:id/cancel` | Cancel |
 
-## Queue (`/queue`) — 7 endpoints
+## Queue — 7 endpoints
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/queue/today/:locationId` | Auth | Antrean per poli |
-| GET | `/queue/summary` | Auth | Ringkasan semua poli |
-| POST | `/queue/call-next/:locationId` | Auth | Panggil berikutnya |
-| PATCH | `/queue/serve/:ticketId` | Auth | CALLED → SERVING |
-| PATCH | `/queue/skip/:ticketId` | Auth | Skip antrean |
-| GET | `/queue/display/:locationId` | **Public** | Display TV/monitor |
+| GET | `/queue/today/:locationId` | Auth | Per poli |
+| GET | `/queue/summary` | Auth | All poli summary |
+| POST | `/queue/call-next/:locationId` | Auth | Call next |
+| PATCH | `/queue/serve/:ticketId` | Auth | Start serving |
+| PATCH | `/queue/skip/:ticketId` | Auth | Skip |
+| GET | `/queue/display/:locationId` | **Public** | TV display |
 
-## Outpatient (`/outpatient`) — 17 endpoints
+## Outpatient — 17 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/outpatient/worklist` | Worklist rawat jalan (filter dokter/poli) |
-| GET | `/outpatient/encounter/:id` | Detail encounter + clinical data + history |
-| PATCH | `/outpatient/encounter/:id/start` | Mulai pemeriksaan |
-| PATCH | `/outpatient/encounter/:id/finish` | Selesaikan kunjungan |
-| POST | `/outpatient/soap` | Input SOAP + vital signs → FHIR Observations |
+| GET | `/outpatient/worklist` | Worklist (filter: doctor/poli/date) |
+| GET | `/outpatient/encounter/:id` | Full clinical detail + history |
+| PATCH | `/outpatient/encounter/:id/start` | Begin examination |
+| PATCH | `/outpatient/encounter/:id/finish` | Complete visit |
+| POST | `/outpatient/soap` | SOAP + vitals → FHIR Observations |
 | PATCH | `/outpatient/soap/:id/sign` | Digital signature |
-| POST | `/outpatient/diagnosis` | Tambah diagnosis ICD-10 |
-| DELETE | `/outpatient/diagnosis/:id` | Hapus diagnosis |
-| GET | `/outpatient/icd10/search` | Search ICD-10 (40,802 codes) |
-| POST | `/outpatient/prescription` | E-resep (auto no_resep) |
-| GET | `/outpatient/prescription/encounter/:id` | Daftar resep per encounter |
-| GET | `/outpatient/medicine/search` | Search obat (autocomplete) |
-| POST | `/outpatient/order/lab` | Order lab (multi-item) |
-| POST | `/outpatient/order/radiology` | Order radiologi |
+| POST | `/outpatient/diagnosis` | Add ICD-10 diagnosis |
+| DELETE | `/outpatient/diagnosis/:id` | Remove |
+| GET | `/outpatient/icd10/search?q=` | Search 40,802 codes |
+| POST | `/outpatient/prescription` | E-prescription (auto no_resep) |
+| GET | `/outpatient/prescription/encounter/:id` | Per encounter |
+| GET | `/outpatient/medicine/search?q=` | Autocomplete |
+| POST | `/outpatient/order/lab` | Lab order (multi-item) |
+| POST | `/outpatient/order/radiology` | Radiology order |
 
-## Pharmacy Dispensing (`/pharmacy/dispensing`) — 4 endpoints
+## Pharmacy — 9 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/pharmacy/dispensing/worklist` | Resep menunggu (SUBMITTED/VERIFIED) |
-| POST | `/pharmacy/dispensing/verify/:id` | Telaah resep (cek alergi + stok) |
-| POST | `/pharmacy/dispensing/dispense/:id` | Dispensing FEFO + kurangi stok |
-| POST | `/pharmacy/dispensing/return/:itemId` | Retur obat |
-| GET | `/pharmacy/dispensing/history` | Riwayat dispensing |
+| GET | `/pharmacy/dispensing/worklist` | Pending prescriptions |
+| POST | `/pharmacy/dispensing/verify/:id` | Verify (allergy + stock check) |
+| POST | `/pharmacy/dispensing/dispense/:id` | Dispense FEFO |
+| POST | `/pharmacy/dispensing/return/:itemId` | Return to stock |
+| GET | `/pharmacy/dispensing/history` | Daily history |
+| POST | `/pharmacy/stock/receive` | Receive goods |
+| POST | `/pharmacy/stock/adjust/:id` | Stock opname |
+| GET | `/pharmacy/stock/medicine/:id` | Stock card |
+| GET | `/pharmacy/stock/dashboard` | Stock summary |
 
-## Pharmacy Stock (`/pharmacy/stock`) — 4 endpoints
+## Billing — 9 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/pharmacy/stock/receive` | Penerimaan barang |
-| POST | `/pharmacy/stock/adjust/:id` | Stok opname |
-| GET | `/pharmacy/stock/medicine/:id` | Kartu stok per obat |
-| GET | `/pharmacy/stock/dashboard` | Ringkasan stok |
+| POST | `/billing/generate/:encounterId` | Auto-generate bill |
+| GET | `/billing?status=&date=&penjamin=` | Cashier worklist |
+| GET | `/billing/stats` | Today stats |
+| GET | `/billing/:id` | Detail + items + payments |
+| POST | `/billing/:id/item` | Add manual item |
+| PATCH | `/billing/:id/void` | Void |
+| POST | `/billing/pay` | Payment (6 methods) |
+| GET | `/billing/:id/payments` | Payment history |
 
-## Billing (`/billing`) — 9 endpoints
+## Emergency — 5 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/billing/generate/:encounterId` | Auto-generate billing |
-| GET | `/billing` | Worklist kasir (filter status/date/penjamin) |
-| GET | `/billing/stats` | Statistik kasir hari ini |
-| GET | `/billing/:id` | Detail billing + items + payments |
-| POST | `/billing/:id/item` | Tambah item manual |
-| PATCH | `/billing/:id/void` | Void billing |
-| POST | `/billing/pay` | Pembayaran (6 metode) |
-| GET | `/billing/:id/payments` | Riwayat pembayaran |
+| POST | `/emergency/register` | Quick register (unknown patient OK) |
+| GET | `/emergency/worklist` | Sorted by ESI triage |
+| GET | `/emergency/stats` | Per ESI level |
+| POST | `/emergency/:id/triase` | Triage + primary/secondary survey |
+| PATCH | `/emergency/:id/disposisi` | Disposition |
 
-## Emergency / IGD (`/emergency`) — 5 endpoints
+## Inpatient — 7 + Beds — 3 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/emergency/register` | Registrasi cepat (support pasien tak dikenal) |
-| GET | `/emergency/worklist` | Worklist sorted by triase ESI |
-| GET | `/emergency/stats` | Statistik per ESI level |
-| POST | `/emergency/:id/triase` | Input triase + primary/secondary survey |
-| PATCH | `/emergency/:id/disposisi` | Disposisi (pulang/rawat inap/rujuk/DOA) |
-
-## Inpatient (`/inpatient`) — 7 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/inpatient/admit` | Admisi + assign bed |
-| GET | `/inpatient/worklist` | Pasien dirawat aktif |
-| GET | `/inpatient/stats` | BOR, active, beds |
-| POST | `/inpatient/cppt` | Input CPPT multidisiplin |
-| GET | `/inpatient/:id/cppt` | Riwayat CPPT |
+| POST | `/inpatient/admit` | Admit + assign bed |
+| GET | `/inpatient/worklist` | Active patients |
+| GET | `/inpatient/stats` | BOR + counts |
+| POST | `/inpatient/cppt` | CPPT note |
+| GET | `/inpatient/:id/cppt` | CPPT history |
 | POST | `/inpatient/:id/transfer` | Transfer bed |
 | PATCH | `/inpatient/:id/discharge` | Discharge |
+| GET | `/beds/map` | Visual bed map |
+| GET | `/beds/available?kelas=` | Available beds |
+| GET | `/beds/summary` | Per class summary |
 
-## Bed Management (`/beds`) — 3 endpoints
+## Laboratory — 7 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/beds/map` | Visual bed map + occupant |
-| GET | `/beds/available` | Bed tersedia (filter kelas) |
-| GET | `/beds/summary` | Summary per kelas |
+| GET | `/lab/worklist` | Orders (priority sorted) |
+| GET | `/lab/stats` | Today stats |
+| GET | `/lab/order/:id` | Detail + results |
+| PATCH | `/lab/order/:id/status` | Status flow |
+| POST | `/lab/order/:itemId/results` | Input results (flag H/L/CH/CL) |
+| POST | `/lab/order/:id/validate` | Validate all |
+| GET | `/lab/patient/:id/history` | Patient lab history |
 
-## Laboratory (`/lab`) — 7 endpoints
+## Radiology — 5 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/lab/worklist` | Order lab (sorted by priority) |
-| GET | `/lab/stats` | Statistik lab hari ini |
-| GET | `/lab/order/:id` | Detail + hasil |
-| PATCH | `/lab/order/:id/status` | Update status flow |
-| POST | `/lab/order/:itemId/results` | Input hasil per parameter |
-| POST | `/lab/order/:id/validate` | Validasi hasil |
-| GET | `/lab/patient/:id/history` | Riwayat lab pasien |
+| GET | `/radiology/worklist` | Orders |
+| GET | `/radiology/stats` | Today stats |
+| GET | `/radiology/order/:id` | Detail |
+| PATCH | `/radiology/order/:id/status` | Status flow |
+| POST | `/radiology/order/:id/expertise` | Expertise (kesan, proyeksi, kV) |
 
-## Radiology (`/radiology`) — 5 endpoints
+## BPJS — 15 endpoints
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/radiology/worklist` | Order radiologi |
-| GET | `/radiology/stats` | Statistik hari ini |
-| GET | `/radiology/order/:id` | Detail order |
-| PATCH | `/radiology/order/:id/status` | Update status |
-| POST | `/radiology/order/:id/expertise` | Input expertise radiolog |
+| GET | `/bpjs/status` | Configuration status |
+| GET | `/bpjs/peserta/:noBpjs` | Check membership |
+| GET | `/bpjs/rujukan/:noRujukan` | Check referral |
+| GET | `/bpjs/rujukan/peserta/:noBpjs` | Referral by card |
+| POST | `/bpjs/sep` | Create SEP |
+| DELETE | `/bpjs/sep/:noSep` | Delete SEP |
+| GET | `/bpjs/dpjp` | Check DPJP |
+| GET | `/bpjs/ref/poli/:keyword` | Poli reference |
+| GET | `/bpjs/ref/diagnosa/:keyword` | Diagnosa reference |
+| GET | `/bpjs/monitoring/klaim` | Claim monitoring |
+| POST | `/bpjs/antrol/add` | Add Mobile JKN queue |
+| POST | `/bpjs/antrol/update-waktu` | Update time |
+| POST | `/bpjs/antrol/batal` | Cancel queue |
+| POST | `/bpjs/aplicares/bed` | Update bed availability |
+| GET | `/bpjs/sync-logs` | API call history |
 
-## BPJS (`/bpjs`) — 20 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/bpjs/status` | Status konfigurasi |
-| GET | `/bpjs/peserta/:noBpjs` | Cek kepesertaan |
-| GET | `/bpjs/rujukan/:noRujukan` | Cek rujukan |
-| GET | `/bpjs/rujukan/peserta/:noBpjs` | Rujukan by kartu |
-| POST | `/bpjs/sep` | Buat SEP |
-| DELETE | `/bpjs/sep/:noSep` | Hapus SEP |
-| GET | `/bpjs/dpjp` | Cek DPJP |
-| GET | `/bpjs/ref/poli/:keyword` | Ref poli BPJS |
-| GET | `/bpjs/ref/diagnosa/:keyword` | Ref diagnosa |
-| GET | `/bpjs/monitoring/klaim` | Monitoring klaim |
-| POST | `/bpjs/antrol/add` | Tambah antrean Mobile JKN |
-| POST | `/bpjs/antrol/update-waktu` | Update waktu antrean |
-| POST | `/bpjs/antrol/batal` | Batal antrean |
-| POST | `/bpjs/aplicares/bed` | Update ketersediaan bed |
-| GET | `/bpjs/sync-logs` | Riwayat API call |
-
-## SATUSEHAT (`/satusehat`) — 3 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/satusehat/stats` | Dashboard statistik sync |
+## SATUSEHAT — 3 endpoints
+| GET | `/satusehat/stats` | Sync dashboard |
 | POST | `/satusehat/sync/:encounterId` | Sync encounter → FHIR |
-| GET | `/satusehat/logs` | Riwayat sync |
+| GET | `/satusehat/logs` | Sync history |
 
-## Surgery (`/surgery`) — 3 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/surgery/schedule` | Jadwalkan operasi |
-| GET | `/surgery/schedule` | Jadwal per tanggal |
-| POST | `/surgery/:id/report` | Laporan operasi |
+## Surgery — 3 endpoints
+| POST | `/surgery/schedule` | Schedule operation |
+| GET | `/surgery/schedule?date=` | Daily schedule |
+| POST | `/surgery/:id/report` | Operation report |
 
-## Nutrition (`/nutrition`) — 2 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/nutrition/orders` | Pasien butuh diet |
-| POST | `/nutrition/adime` | Input ADIME |
+## Nutrition — 2 endpoints
+| GET | `/nutrition/orders` | Inpatients needing diet |
+| POST | `/nutrition/adime` | ADIME assessment |
 
-## Analytics (`/analytics`) — 4 endpoints
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/analytics/kpi` | KPI (BOR, ALOS, BTO) |
-| GET | `/analytics/top-diseases` | 10 penyakit terbanyak |
-| GET | `/analytics/visit-trend` | Trend 7 hari |
-| GET | `/analytics/revenue` | Revenue bulan ini |
+## Analytics — 4 endpoints
+| GET | `/analytics/kpi` | BOR, ALOS, BTO |
+| GET | `/analytics/top-diseases` | Top 10 ICD-10 |
+| GET | `/analytics/visit-trend` | 7-day trend |
+| GET | `/analytics/revenue` | Monthly revenue |
 
-## Health Check
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
+## Finance — 1 endpoint
+| GET | `/finance/summary?month=&year=` | Monthly summary |
+
+## HR — 2 endpoints
+| GET | `/hr/employees?page=` | Employee list |
+| GET | `/hr/stats` | PNS/kontrak/honorer stats |
+
+## Assets — 3 endpoints
+| GET | `/assets?kategori=` | Asset list |
+| GET | `/assets/stats` | By condition |
+| POST | `/assets` | Add asset |
+
+## Logistics — 3 endpoints
+| GET | `/logistics?kategori=` | Inventory list |
+| GET | `/logistics/stats` | Low stock count |
+| POST | `/logistics` | Add item |
+
+## SIRS — 1 endpoint
+| GET | `/sirs/rl1?year=` | RL1 reporting data |
+
+## Health — 1 endpoint
 | GET | `/health` | Public | API status |
 
 ---
 
-## Response Format
+## Response Formats
 
-**Success:** `{ "id": 1, "field": "value", ... }`
+**Success:** `{ "id": 1, ... }`
 **Paginated:** `{ "data": [...], "meta": { "total", "page", "limit", "totalPages" } }`
-**Error:** `{ "success": false, "statusCode": 400, "message": "...", "timestamp": "..." }`
+**Error:** `{ "success": false, "statusCode": 400, "message": "..." }`

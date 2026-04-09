@@ -8,243 +8,224 @@ RSUD Petala Bumi Provinsi Riau
 [![MySQL](https://img.shields.io/badge/Database-MySQL%208.0-4479A1)](https://www.mysql.com/)
 [![Prisma](https://img.shields.io/badge/ORM-Prisma%205-2D3748)](https://www.prisma.io/)
 [![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-Proprietary-red)]()
 
 ---
 
 ## Overview
 
-SIMRS Petala Bumi adalah sistem informasi rumah sakit berbasis web modern yang dibangun dari nol untuk menggantikan **SIMRS Khanza** (Java Swing/desktop). Database schema dirancang **kompatibel langsung** dengan struktur Khanza untuk memudahkan migrasi data (ETL).
+SIMRS berbasis web modern pengganti **SIMRS Khanza** (Java/desktop). Database **kompatibel langsung** dengan Khanza untuk migrasi ETL. Terintegrasi **SATUSEHAT (FHIR R4)** dan **BPJS Kesehatan**.
 
-| Item | Detail |
-|------|--------|
-| **Klien** | RSUD Petala Bumi Provinsi Riau (RS Kelas C, BLUD) |
-| **Vendor** | CV Panda Global Teknologi, Pekanbaru |
-| **Total Modul** | 23 modul aktif |
-| **Backend** | 17 NestJS modules, 32 services, 23 controllers, **126 API endpoints** |
-| **Frontend** | 24 halaman, 7 reusable UI components |
-| **Database** | 35+ models Prisma, 40+ enums, Khanza-compatible |
-| **Integrasi** | SATUSEHAT (FHIR R4), BPJS (VClaim/Antrol/Aplicares) |
+| Metric | Value |
+|--------|-------|
+| **Backend Modules** | 22 NestJS modules |
+| **API Endpoints** | 136 documented endpoints |
+| **Services** | 37 business services |
+| **Frontend Pages** | 30 pages |
+| **UI Components** | 8 reusable components |
+| **Database Models** | 36 Prisma models, 41 enums |
+| **Codebase** | 200 TypeScript files, 20,274 lines |
+| **Khanza Data** | 40,802 ICD-10 codes, 2,011 medicines imported |
 
 ---
 
-## Arsitektur
+## Architecture
 
 ```
-                          ┌──────────────────────┐
-                          │    Web Browser        │
-                          │    Mobile App         │
-                          └──────────┬───────────┘
-                                     │
-                    ┌────────────────┼────────────────┐
-                    │                │                │
-              ┌─────▼─────┐  ┌──────▼──────┐  ┌─────▼─────┐
-              │  Next.js   │  │  NestJS API │  │  Swagger  │
-              │  Port 3000 │  │  Port 3001  │  │  /api/docs│
-              └────────────┘  └──────┬──────┘  └───────────┘
-                                     │
-                    ┌────────────────┼────────────────┐
-                    │                │                │
-              ┌─────▼─────┐  ┌──────▼──────┐  ┌─────▼─────┐
-              │  MySQL 8.0 │  │  Redis 7    │  │  MinIO    │
-              │  Port 3306 │  │  Port 6379  │  │  Port 9000│
-              └────────────┘  └─────────────┘  └───────────┘
-                                     │
-                    ┌────────────────┼────────────────┐
-                    │                                │
-              ┌─────▼─────────┐            ┌────────▼────────┐
-              │  SATUSEHAT    │            │  BPJS Kesehatan  │
-              │  FHIR R4 API  │            │  VClaim/Antrol   │
-              └───────────────┘            └──────────────────┘
+ Browser / Mobile           Next.js 14          NestJS 10           MySQL 8.0
+ ─────────────────     ──────────────────    ─────────────────    ──────────────
+ 30 Pages               App Router            22 Modules           36 Models
+ 8 UI Components         Tailwind CSS          136 Endpoints        41 Enums
+ Zustand State           Design System         Prisma ORM           Khanza-compat
+                                               JWT + RBAC
+                                               │
+                         ┌─────────────────────┼──────────────────────┐
+                         │                     │                      │
+                    SATUSEHAT            BPJS Kesehatan            Redis 7
+                    FHIR R4             VClaim/Antrol              Cache/Queue
+                                       Aplicares                  MinIO Storage
 ```
 
 ---
 
-## Modul & Status
+## All Modules (22)
 
-### Pelayanan Klinis
-| Modul | Backend | Frontend | Endpoints |
-|-------|---------|----------|-----------|
-| Registrasi & Admisi | Done | Done | 6 |
-| Manajemen Antrean | Done | Done | 7 (incl. public display) |
-| Rawat Jalan | Done | Done | 17 (SOAP, Dx, Rx, Order) |
-| IGD | Done | Done | 5 (triase ESI, disposisi) |
-| Rawat Inap + Bed | Done | Done | 10 (bed map, CPPT, transfer, discharge) |
-| Kamar Operasi | Done | Done | 3 (jadwal, laporan) |
-| Farmasi/Apotek | Done | Done | 14 (dispensing, stok, retur) |
-| Laboratorium | Done | Done | 7 (order→hasil→validasi) |
-| Radiologi | Done | Done | 5 (order→expertise) |
-| Gizi/Dapur | Done | Done | 2 (ADIME) |
+### Clinical (10 modules)
+| Module | Endpoints | Key Features |
+|--------|-----------|--------------|
+| Registration | 6 | Auto no_rawat (YYYY/MM/DD/NNNNNN), antrean, BPJS check |
+| Queue | 7 | Call next, serve, skip, public TV display endpoint |
+| Outpatient | 17 | SOAP, ICD-10 diagnosis, e-prescription, lab/rad orders |
+| Emergency | 5 | Quick register (unknown patient), ESI triage, disposition |
+| Inpatient | 7 | Bed assignment, CPPT notes, transfer, discharge + BOR calc |
+| Bed Management | 3 | Visual bed map, availability per class |
+| Surgery | 3 | Schedule, operation report |
+| Pharmacy | 14 | Prescription verify (allergy check), FEFO dispensing, stock |
+| Laboratory | 7 | Order flow, result input with flags, validation |
+| Radiology | 5 | Order flow, expertise input (kesan, proyeksi, kV, mAS) |
 
-### Penunjang & Integrasi
-| Modul | Backend | Frontend | Endpoints |
-|-------|---------|----------|-----------|
-| Billing & Kasir | Done | Done | 9 (auto-generate, multi-pay) |
-| Bridging BPJS | Done | Done | 20 (VClaim, Antrol, Aplicares) |
-| SATUSEHAT FHIR | Done | Done | 3 (sync, logs) |
-| Dashboard Analitik | Done | Done | 4 (KPI, trend, top-10, revenue) |
+### Support (7 modules)
+| Module | Endpoints | Key Features |
+|--------|-----------|--------------|
+| Billing | 9 | Auto-generate from encounter, multi-payment (6 methods) |
+| BPJS | 20 | VClaim, SEP, Antrol (Mobile JKN), Aplicares, simulation mode |
+| SATUSEHAT | 3 | FHIR builder (Encounter/Condition/Observation), sync + logs |
+| Analytics | 4 | KPI (BOR/ALOS/BTO), top-10 diseases, trend, revenue |
+| Nutrition | 2 | ADIME assessment for inpatients |
+| Finance | 1 | Monthly revenue summary |
+| SIRS | 1 | RL1 reporting data |
 
-### Master Data & Admin
-| Modul | Backend | Frontend | Endpoints |
-|-------|---------|----------|-----------|
-| Master Pasien | Done | Done | 4 (CRUD + search) |
-| Master Dokter/Nakes | Done | Done | 3 |
-| Master Lokasi/Unit | Done | Done | 5 |
-| Master Obat/Alkes | Done | Done | 7 (stock alerts, expiring) |
-| Jadwal Dokter | Done | Done | 5 |
-| User Management | Done | Done | 3 |
-| Auth (JWT + RBAC) | Done | Done | 2 |
-
----
-
-## Tech Stack
-
-| Layer | Teknologi |
-|-------|-----------|
-| **Frontend** | Next.js 14 (App Router), Tailwind CSS, Zustand, Axios |
-| **Backend** | NestJS 10, TypeScript, Swagger/OpenAPI |
-| **Database** | MySQL 8.0, Prisma 5 ORM |
-| **Cache/Queue** | Redis 7, BullMQ |
-| **File Storage** | MinIO (S3-compatible) |
-| **Infra** | Docker, Nginx, GitHub Actions |
+### Master Data & System (5 modules)
+| Module | Endpoints | Key Features |
+|--------|-----------|--------------|
+| Auth | 2 | JWT (15min access + 7d refresh), 10 RBAC roles |
+| Patients | 4 | CRUD, auto No.RM (PB-XXXXXX), search |
+| Practitioners | 8 | CRUD + schedules per poli/day |
+| Locations | 5 | CRUD, hierarchy, poli/bangsal/IGD |
+| Medicines | 7 | 7-tier Khanza pricing, stock alerts, expiring detection |
+| Users | 3 | CRUD + role assignment |
+| Assets | 3 | CRUD + stats by kondisi |
+| Logistics | 3 | Inventory CRUD + low-stock alerts |
+| HR | 2 | Employee list + stats (PNS/kontrak/honorer) |
 
 ---
 
-## Kompatibilitas Khanza
+## Frontend Pages (30)
 
-Database dirancang dengan mapping langsung ke tabel SIMRS Khanza untuk migrasi:
+| Path | Page | Status |
+|------|------|--------|
+| `/login` | Login | Functional |
+| `/dashboard` | Dashboard (live stats, clock, queue, quick actions) | Functional |
+| `/registrasi` | Registration & admisi | Functional |
+| `/rawat-jalan` | Outpatient worklist + clinical screen (SOAP/Dx/Rx) | Functional |
+| `/igd` | Emergency with ESI 1-5 triage | Functional |
+| `/rawat-inap` | Inpatient bed map + CPPT + discharge | Functional |
+| `/kamar-operasi` | Surgery schedule + operation report | Functional |
+| `/farmasi` | Prescription worklist + dispensing + stock | Functional |
+| `/laboratorium` | Lab orders + result input + validation | Functional |
+| `/radiologi` | Radiology orders + expertise input | Functional |
+| `/gizi` | Nutrition ADIME assessment | Functional |
+| `/billing` | Invoice + multi-method payment | Functional |
+| `/antrean` | Queue monitor per poli (auto-refresh 10s) | Functional |
+| `/rekam-medis` | Patient search + encounter history panel | Functional |
+| `/keuangan` | Finance summary (monthly + daily) | Functional |
+| `/kepegawaian` | HR employee list + stats | Functional |
+| `/logistik` | Inventory CRUD + low-stock | Functional |
+| `/aset` | Asset CRUD + condition stats | Functional |
+| `/dashboard-analitik` | KPI cards, trend chart, top-10 diseases, revenue | Functional |
+| `/satusehat` | FHIR sync monitor + logs | Functional |
+| `/bpjs` | Peserta check, rujukan, SEP, sync logs | Functional |
+| `/pendaftaran-online` | Online registration portal info | Informational |
+| `/admin` | Master data hub | Functional |
+| `/admin/pasien` | Patient CRUD | Functional |
+| `/admin/dokter` | Practitioner CRUD | Functional |
+| `/admin/lokasi` | Location CRUD | Functional |
+| `/admin/obat` | Medicine CRUD (7-tier pricing) | Functional |
+| `/admin/jadwal` | Doctor schedule management | Functional |
+| `/admin/users` | User + role management | Functional |
 
-| Khanza Table | New Model | Key Mapping |
+---
+
+## Khanza Database Compatibility
+
+ETL script: `scripts/migrate-khanza.ts`
+
+| Khanza Table | New Model | Imported Data |
 |---|---|---|
-| `pasien` | Patient | `no_rkm_medis`→`noRm`, `no_ktp`→`nik`, `no_peserta`→`noBpjs` |
-| `dokter`+`petugas` | Practitioner | `kd_dokter`, `kd_sps`→Spesialis, unified |
-| `poliklinik`+`bangsal` | Location | `kd_poli`→`kdPoliKhanza`, `kd_bangsal`→`kdBangsalKhanza` |
-| `kamar` | Bed | `kd_kamar`→`nomorBed`, `trf_kamar`→`tarifPerHari` |
-| `reg_periksa` | Encounter | `no_rawat` (YYYY/MM/DD/NNNNNN), `biaya_reg`, `stts_daftar` |
-| `rawat_jl_dr/pr` | Procedure | Tarif breakdown: material, bhp, tarif_dr/pr, kso |
-| `databarang` | Medicine | **7 tier harga**: ralan, kelas1-3, utama, vip, vvip |
-| `resep_obat` | Prescription | `embalase`, `tuslah`, `no_batch` |
-| `diagnosa_pasien` | Diagnosis | `kd_penyakit` (ICD-10), `prioritas` |
-| `periksa_lab` | LabOrder | `id_template`, tarif breakdown |
-| `bridging_sep` | BridgingSep | Full SEP: `no_sep`, `kd_dpjp`, `kls_rawat` |
-| `penjab` | Penjab | `kd_pj`, `png_jawab` |
-| `penyakit` | Penyakit | 40,802 ICD-10 codes (imported) |
+| `pasien` | Patient | No.RM, NIK, BPJS, alamat, PJ |
+| `dokter` + `petugas` | Practitioner | Unified with jenisNakes |
+| `pegawai` | Employee | NIP, jabatan, gapok, status |
+| `poliklinik` | Location (POLI) | 21 poli with biaya registrasi |
+| `bangsal` + `kamar` | Location + Bed | 14 bangsal, 3 beds |
+| `reg_periksa` | Encounter | no_rawat (YYYY/MM/DD/NNNNNN) |
+| `databarang` | Medicine | **2,011 items** with 7-tier pricing |
+| `penyakit` | Penyakit | **40,802 ICD-10 codes** |
+| `penjab` | Penjab | 26 insurance/payer types |
+| `spesialis` | Spesialis | 11 specializations |
+| `bridging_sep` | BridgingSep | Full SEP data structure |
 
-ETL script: `scripts/migrate-khanza.ts` — migrasi otomatis semua data Khanza.
+---
+
+## Design System
+
+Premium dark glassmorphism health-tech theme (see `docs/SIMRS-DESIGN-SYSTEM.md`):
+
+| Property | Value |
+|----------|-------|
+| Background | `#09090F` |
+| Primary | `#7C3AED` (Violet) |
+| Semantic | Teal `#5EEAD4`, Rose `#FDA4AF`, Amber `#FCD34D`, Sky `#7DD3FC` |
+| Font | Plus Jakarta Sans, JetBrains Mono |
+| Glass | 4-level hierarchy (0.025 → 0.05 → 0.08 → 0.12) blur 28px |
+| Orbs | 3 animated gradient orbs (violet/teal/rose) drift 30s |
+| Border Radius | 16px cards, 10px buttons/inputs, 6px badges |
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone & install
 git clone https://github.com/anunnaki13/damnation.git
 cd damnation && pnpm install
-
-# Environment
 cp .env.example .env
 
-# Infrastructure (MySQL, Redis, MinIO)
+# Start MySQL + Redis
 docker compose -f docker/docker-compose.yml up -d
+# OR if no Docker:
+service mysql start && service redis-server start
 
-# Database
 pnpm db:migrate && pnpm db:seed
-
-# Start
 pnpm dev
 ```
 
-### Default Login
-| Username | Password | Role |
-|----------|----------|------|
-| `admin` | `admin123` | Full access |
+**Login:** `admin` / `admin123`
 
-### URLs
 | Service | URL |
 |---------|-----|
 | Frontend | http://localhost:3000 |
-| Backend API | http://localhost:3001 |
-| Swagger Docs | http://localhost:3001/api/docs |
-
----
-
-## Halaman Frontend
-
-| Path | Halaman |
-|------|---------|
-| `/login` | Login page |
-| `/dashboard` | Dashboard utama (live stats, antrean, quick actions) |
-| `/registrasi` | Registrasi & admisi pasien |
-| `/rawat-jalan` | Worklist + clinical screen (SOAP, Dx, Rx) |
-| `/igd` | IGD dengan triase ESI 1-5 |
-| `/rawat-inap` | Bed map visual + CPPT + discharge |
-| `/farmasi` | Worklist resep, dispensing, stok |
-| `/laboratorium` | Order lab, input hasil, validasi |
-| `/radiologi` | Order radiologi, input expertise |
-| `/billing` | Tagihan, pembayaran multi-metode |
-| `/antrean` | Monitor antrean per poli (auto-refresh) |
-| `/kamar-operasi` | Jadwal operasi, laporan pembedahan |
-| `/gizi` | Asesmen gizi ADIME |
-| `/dashboard-analitik` | KPI (BOR, ALOS, BTO), trend, top-10 penyakit, revenue |
-| `/satusehat` | Monitor sync SATUSEHAT FHIR |
-| `/bpjs` | Cek peserta, SEP, sync log BPJS |
-| `/admin` | Hub master data |
-| `/admin/pasien` | CRUD pasien |
-| `/admin/dokter` | CRUD dokter/nakes |
-| `/admin/lokasi` | CRUD lokasi/poli/bangsal |
-| `/admin/obat` | CRUD obat (7 tier harga) |
-| `/admin/jadwal` | Jadwal praktik dokter |
-| `/admin/users` | User & role management |
-
----
-
-## UI Design
-
-Premium dark health-tech SaaS design:
-- **Color palette**: Deep navy (#0c0c1d), purple accent (#7c5cfc), teal (#2dd4bf)
-- **Card system**: `card` (glass blur), `card-flat` (solid), `card-highlight` (accent)
-- **Typography**: Inter font, 3-level hierarchy, uppercase tracking labels
-- **Components**: DataTable, Modal, FormField, StatusBadge, SearchInput, PageHeader
-- **Responsive**: Mobile-friendly layout, collapsible sidebar
-
----
-
-## Dokumentasi
-
-| Dokumen | Deskripsi |
-|---------|-----------|
-| [docs/DATABASE.md](docs/DATABASE.md) | Schema, ERD, Khanza mapping detail |
-| [docs/API.md](docs/API.md) | 126 API endpoints reference |
-| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Development guide, conventions |
-| [docs/MIGRATION.md](docs/MIGRATION.md) | Khanza → new system ETL guide |
-| [CLAUDE.md](CLAUDE.md) | Claude Code development instructions |
-| [blueprint/](blueprint/) | Full technical blueprint |
+| API | http://localhost:3001 |
+| Swagger | http://localhost:3001/api/docs |
 
 ---
 
 ## RBAC (10 Roles)
 
-| Role | Akses |
-|------|-------|
-| ADMIN | Semua modul |
-| DOKTER | Rawat jalan/inap, RME, e-resep, order lab/rad |
-| PERAWAT | Catatan keperawatan, tanda vital, CPPT |
-| APOTEKER | Farmasi, telaah resep, stok obat |
-| REGISTRASI | Registrasi, admisi, antrean |
-| KASIR | Billing, pembayaran |
-| LAB_ANALIS | Laboratorium, input hasil |
-| RADIOGRAFER | Radiologi, expertise |
-| MANAJEMEN | Dashboard, laporan, analytics |
-| IT | Admin sistem, monitoring integrasi |
+| Role | Access |
+|------|--------|
+| ADMIN | All modules |
+| DOKTER | Clinical (rawat jalan/inap, RME, e-resep, orders) |
+| PERAWAT | Nursing notes, vitals, CPPT |
+| APOTEKER | Pharmacy, stock, prescription |
+| REGISTRASI | Registration, queue, BPJS check |
+| KASIR | Billing, payments |
+| LAB_ANALIS | Laboratory results, validation |
+| RADIOGRAFER | Radiology expertise |
+| MANAJEMEN | Dashboard, analytics, reports |
+| IT | System admin, integration monitoring |
 
 ---
 
-## Keamanan
+## Documentation
 
-- JWT (15min access + 7d refresh)
-- RBAC granular per endpoint
-- Audit trail (semua CUD operations)
+| Document | Description |
+|----------|-------------|
+| [docs/API.md](docs/API.md) | All 136 API endpoints |
+| [docs/DATABASE.md](docs/DATABASE.md) | Schema + Khanza mapping |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Dev guide + conventions |
+| [docs/MIGRATION.md](docs/MIGRATION.md) | Khanza ETL guide |
+| [docs/SIMRS-DESIGN-SYSTEM.md](docs/SIMRS-DESIGN-SYSTEM.md) | UI design system blueprint |
+| [CLAUDE.md](CLAUDE.md) | Claude Code dev instructions |
+| [blueprint/](blueprint/) | Full technical blueprint |
+
+---
+
+## Security & Compliance
+
+- JWT Authentication (15min access + 7d refresh)
+- RBAC granular per endpoint (10 roles)
+- Audit trail on all CUD operations
 - Bcrypt password hashing
-- Compliance: Permenkes 82/2013, Permenkes 24/2022, UU PDP 27/2022
+- Permenkes 82/2013, Permenkes 24/2022, UU PDP 27/2022
 
 ---
 
