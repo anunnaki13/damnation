@@ -9,6 +9,7 @@ import { PractitionersModule } from './modules/practitioners/practitioners.modul
 import { LocationsModule } from './modules/locations/locations.module';
 import { PharmacyModule } from './modules/pharmacy/pharmacy.module';
 import { RegistrationModule } from './modules/registration/registration.module';
+import { OutpatientModule } from './modules/outpatient/outpatient.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -26,6 +27,7 @@ import { HealthController } from './health.controller';
     LocationsModule,
     PharmacyModule,
     RegistrationModule,
+    OutpatientModule,
   ],
   controllers: [HealthController],
   providers: [
