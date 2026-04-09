@@ -15,6 +15,7 @@ import { BpjsModule } from './modules/bpjs/bpjs.module';
 import { EmergencyModule } from './modules/emergency/emergency.module';
 import { InpatientModule } from './modules/inpatient/inpatient.module';
 import { LaboratoryModule } from './modules/laboratory/laboratory.module';
+import { SatusehatModule } from './modules/satusehat/satusehat.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -38,6 +39,7 @@ import { HealthController } from './health.controller';
     EmergencyModule,
     InpatientModule,
     LaboratoryModule,
+    SatusehatModule,
   ],
   controllers: [HealthController],
   providers: [
