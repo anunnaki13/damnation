@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/ui/page-header';
 
 const adminMenus = [
-  { label: 'Master Pasien', href: '/admin/pasien', desc: 'CRUD data pasien, search, registrasi baru', icon: 'P', color: 'bg-blue-500' },
-  { label: 'Master Dokter & Nakes', href: '/admin/dokter', desc: 'Data dokter, perawat, dan tenaga kesehatan', icon: 'D', color: 'bg-green-500' },
-  { label: 'Master Lokasi / Unit', href: '/admin/lokasi', desc: 'Poli, bangsal, IGD, OK, lab, radiologi, farmasi', icon: 'L', color: 'bg-orange-500' },
-  { label: 'Master Obat & Alkes', href: '/admin/obat', desc: 'Formularium obat, alkes, BHP, harga', icon: 'O', color: 'bg-red-500' },
-  { label: 'Jadwal Praktik Dokter', href: '/admin/jadwal', desc: 'Jadwal dokter per poli, per hari', icon: 'J', color: 'bg-purple-500' },
-  { label: 'User Management', href: '/admin/users', desc: 'Kelola user, roles, dan permissions', icon: 'U', color: 'bg-gray-700' },
+  { label: 'Master Pasien', href: '/admin/pasien', desc: 'Data pasien, registrasi baru, search', gradient: 'from-blue-500/20 to-indigo-500/20', iconColor: 'text-blue-400', border: 'border-blue-500/10' },
+  { label: 'Dokter & Nakes', href: '/admin/dokter', desc: 'Dokter, perawat, tenaga kesehatan', gradient: 'from-emerald-500/20 to-teal-500/20', iconColor: 'text-emerald-400', border: 'border-emerald-500/10' },
+  { label: 'Lokasi / Unit', href: '/admin/lokasi', desc: 'Poli, bangsal, IGD, OK, lab', gradient: 'from-amber-500/20 to-orange-500/20', iconColor: 'text-amber-400', border: 'border-amber-500/10' },
+  { label: 'Obat & Alkes', href: '/admin/obat', desc: 'Formularium, harga, stok minimum', gradient: 'from-red-500/20 to-pink-500/20', iconColor: 'text-red-400', border: 'border-red-500/10' },
+  { label: 'Jadwal Dokter', href: '/admin/jadwal', desc: 'Jadwal praktik per poli per hari', gradient: 'from-purple-500/20 to-violet-500/20', iconColor: 'text-purple-400', border: 'border-purple-500/10' },
+  { label: 'User Management', href: '/admin/users', desc: 'Users, roles, permissions', gradient: 'from-slate-500/20 to-zinc-500/20', iconColor: 'text-slate-400', border: 'border-slate-500/10' },
 ];
 
 export default function AdminPage() {
@@ -17,17 +17,19 @@ export default function AdminPage() {
     <div>
       <PageHeader title="Administrasi Sistem" description="Kelola master data dan konfigurasi SIMRS" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {adminMenus.map((menu) => (
           <Link key={menu.href} href={menu.href}
-            className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition group">
-            <div className="flex items-start gap-4">
-              <div className={`w-12 h-12 ${menu.color} rounded-lg flex items-center justify-center text-white font-bold text-lg`}>
-                {menu.icon}
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-800 group-hover:text-primary-600 transition">{menu.label}</h3>
-                <p className="text-sm text-gray-500 mt-1">{menu.desc}</p>
+            className={`glass-card p-6 group relative overflow-hidden border ${menu.border}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${menu.gradient} opacity-0 group-hover:opacity-100 transition-opacity`} />
+            <div className="relative">
+              <h3 className={`font-semibold text-white text-lg group-hover:${menu.iconColor} transition-colors`}>{menu.label}</h3>
+              <p className="text-sm text-slate-500 mt-2">{menu.desc}</p>
+              <div className="mt-4 flex items-center text-sm text-slate-500 group-hover:text-slate-300 transition-colors">
+                <span>Kelola</span>
+                <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             </div>
           </Link>

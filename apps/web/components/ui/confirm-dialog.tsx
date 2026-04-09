@@ -14,37 +14,22 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmLabel = 'Ya, Lanjutkan',
-  cancelLabel = 'Batal',
-  variant = 'danger',
+  isOpen, onClose, onConfirm, title, message,
+  confirmLabel = 'Ya, Lanjutkan', cancelLabel = 'Batal', variant = 'danger',
 }: ConfirmDialogProps) {
   const btnClass = {
-    danger: 'bg-red-600 hover:bg-red-700',
-    warning: 'bg-yellow-600 hover:bg-yellow-700',
-    info: 'bg-blue-600 hover:bg-blue-700',
+    danger: 'bg-gradient-to-r from-red-500 to-red-600',
+    warning: 'bg-gradient-to-r from-amber-500 to-amber-600',
+    info: 'bg-gradient-to-r from-indigo-500 to-indigo-600',
   };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-gray-600 mb-6">{message}</p>
+      <p className="text-slate-400 mb-6 text-sm">{message}</p>
       <div className="flex justify-end gap-3">
-        <button
-          onClick={onClose}
-          className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50"
-        >
-          {cancelLabel}
-        </button>
-        <button
-          onClick={() => { onConfirm(); onClose(); }}
-          className={`px-4 py-2 text-sm text-white rounded-lg ${btnClass[variant]}`}
-        >
-          {confirmLabel}
-        </button>
+        <button onClick={onClose} className="px-4 py-2 text-sm glass-btn-outline rounded-xl">{cancelLabel}</button>
+        <button onClick={() => { onConfirm(); onClose(); }}
+          className={`px-4 py-2 text-sm text-white rounded-xl ${btnClass[variant]}`}>{confirmLabel}</button>
       </div>
     </Modal>
   );
