@@ -13,6 +13,7 @@ import { OutpatientModule } from './modules/outpatient/outpatient.module';
 import { BillingModule } from './modules/billing/billing.module';
 import { BpjsModule } from './modules/bpjs/bpjs.module';
 import { EmergencyModule } from './modules/emergency/emergency.module';
+import { InpatientModule } from './modules/inpatient/inpatient.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -34,6 +35,7 @@ import { HealthController } from './health.controller';
     BillingModule,
     BpjsModule,
     EmergencyModule,
+    InpatientModule,
   ],
   controllers: [HealthController],
   providers: [
