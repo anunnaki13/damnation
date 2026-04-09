@@ -2,6 +2,7 @@
 // SIMRS Petala Bumi — Prisma Schema
 // RSUD Petala Bumi Provinsi Riau
 // 23 Modul Terintegrasi
+// Kompatibel dengan Database Khanza untuk migrasi
 // ==============================================
 
 generator client {
@@ -61,24 +62,26 @@ model UserRole {
 
 // ==============================================
 // MASTER PASIEN
+// Khanza: pasien (PK: no_rkm_medis)
 // ==============================================
 
 model Patient {
   id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   noRm           String    @unique @map("no_rm") @db.VarChar(15)
-  nik            String?   @unique @db.VarChar(16)
-  noBpjs         String?   @map("no_bpjs") @db.VarChar(13)
+  // --- Khanza mapping: no_rkm_medis → noRm ---
+  nik            String?   @unique @db.VarChar(20)       // Khanza: no_ktp (varchar 20)
+  noBpjs         String?   @map("no_bpjs") @db.VarChar(25) // Khanza: no_peserta (varchar 25)
   satusehatId    String?   @map("satusehat_id") @db.VarChar(64)
-  namaLengkap    String    @map("nama_lengkap") @db.VarChar(200)
-  tempatLahir    String?   @map("tempat_lahir") @db.VarChar(100)
+  namaLengkap    String    @map("nama_lengkap") @db.VarChar(200) // Khanza: nm_pasien (40)
+  tempatLahir    String?   @map("tempat_lahir") @db.VarChar(100) // Khanza: tmp_lahir (15)
   tanggalLahir   DateTime  @map("tanggal_lahir") @db.Date
   jenisKelamin   JenisKelamin @map("jenis_kelamin")
   golonganDarah  GolonganDarah? @map("golongan_darah")
   agama          String?   @db.VarChar(20)
-  statusNikah    StatusNikah? @map("status_nikah")
-  pendidikan     String?   @db.VarChar(30)
-  pekerjaan      String?   @db.VarChar(50)
-  alamat         String?   @db.Text
+  statusNikah    String?   @map("status_nikah") @db.VarChar(30) // Khanza: enum string, kita varchar
+  pendidikan     String?   @db.VarChar(30)               // Khanza: pnd enum
+  pekerjaan      String?   @db.VarChar(60)               // Khanza: pekerjaan (60)
+  alamat         String?   @db.VarChar(200)              // Khanza: alamat (200)
   rt             String?   @db.VarChar(5)
   rw             String?   @db.VarChar(5)
   kelurahan      String?   @db.VarChar(100)
@@ -86,22 +89,46 @@ model Patient {
   kabupaten      String?   @db.VarChar(100)
   provinsi       String?   @db.VarChar(100)
   kodePos        String?   @map("kode_pos") @db.VarChar(5)
-  noTelp         String?   @map("no_telp") @db.VarChar(20)
-  noHp           String?   @map("no_hp") @db.VarChar(20)
+  noTelp         String?   @map("no_telp") @db.VarChar(40) // Khanza: no_tlp (40)
+  noHp           String?   @map("no_hp") @db.VarChar(40)
   email          String?   @db.VarChar(100)
-  namaIbu        String?   @map("nama_ibu") @db.VarChar(200)
+  namaIbu        String?   @map("nama_ibu") @db.VarChar(200) // Khanza: nm_ibu (40)
+  // Penanggung Jawab — Khanza: keluarga, namakeluarga, pekerjaanpj, alamatpj
   namaPj         String?   @map("nama_pj") @db.VarChar(200)
-  hubunganPj     String?   @map("hubungan_pj") @db.VarChar(30)
-  alamatPj       String?   @map("alamat_pj") @db.Text
-  telpPj         String?   @map("telp_pj") @db.VarChar(20)
+  hubunganPj     String?   @map("hubungan_pj") @db.VarChar(30)  // Khanza: keluarga enum
+  alamatPj       String?   @map("alamat_pj") @db.VarChar(200)
+  telpPj         String?   @map("telp_pj") @db.VarChar(40)
+  pekerjaanPj    String?   @map("pekerjaan_pj") @db.VarChar(60)  // Khanza: pekerjaanpj
+  kelurahanPj    String?   @map("kelurahan_pj") @db.VarChar(60)
+  kecamatanPj    String?   @map("kecamatan_pj") @db.VarChar(60)
+  kabupatenPj    String?   @map("kabupaten_pj") @db.VarChar(60)
+  propinsiPj     String?   @map("propinsi_pj") @db.VarChar(60)
+  // Data tambahan dari Khanza
+  umur           String?   @db.VarChar(30)               // Khanza: umur ('37 Th 11 Bl 8 Hr')
+  sukuBangsa     String?   @map("suku_bangsa") @db.VarChar(60)
+  bahasaPasien   String?   @map("bahasa_pasien") @db.VarChar(40)
+  cacatFisik     String?   @map("cacat_fisik") @db.VarChar(60)
+  nip            String?   @db.VarChar(30)               // Khanza: nip (jika pegawai)
+  perusahaanPasien String? @map("perusahaan_pasien") @db.VarChar(60)
+  // Alergi
   alergiObat     String?   @map("alergi_obat") @db.Text
   alergiMakanan  String?   @map("alergi_makanan") @db.Text
-  foto           String?   @db.VarChar(255)
+  foto           String?   @db.VarChar(500)              // Khanza: pegawai.photo (500)
+  // Penjamin default — Khanza: kd_pj di pasien level
+  kdPj           String?   @map("kd_pj") @db.VarChar(5)  // FK ke penjab Khanza
+  // Kode wilayah Khanza (integer FK)
+  kdKel          Int?      @map("kd_kel")
+  kdKec          Int?      @map("kd_kec")
+  kdKab          Int?      @map("kd_kab")
+  kdProp         Int?      @map("kd_prop")
+  // Tanggal daftar pertama (Khanza: tgl_daftar)
+  tglDaftar      DateTime? @map("tgl_daftar") @db.Date
   isActive       Boolean   @default(true) @map("is_active")
   createdAt      DateTime  @default(now()) @map("created_at")
   updatedAt      DateTime  @updatedAt @map("updated_at")
   createdBy      BigInt?   @map("created_by") @db.UnsignedBigInt
 
+  penjab         Penjab?   @relation(fields: [kdPj], references: [kdPj])
   encounters     Encounter[]
   diagnoses      Diagnosis[]
   observations   Observation[]
@@ -117,37 +144,82 @@ model Patient {
   @@index([satusehatId])
   @@index([namaLengkap])
   @@index([tanggalLahir])
+  @@index([kdPj])
   @@map("patients")
 }
 
 // ==============================================
+// PENJAMIN / ASURANSI
+// Khanza: penjab (PK: kd_pj)
+// ==============================================
+
+model Penjab {
+  kdPj             String   @id @map("kd_pj") @db.VarChar(5)  // Khanza: kd_pj char(3)
+  pngJawab         String?  @map("png_jawab") @db.VarChar(60)  // Khanza: png_jawab
+  namaPerusahaan   String?  @map("nama_perusahaan") @db.VarChar(100)
+  alamatAsuransi   String?  @map("alamat_asuransi") @db.VarChar(200)
+  noTelp           String?  @map("no_telp") @db.VarChar(40)
+  attn             String?  @db.VarChar(60)
+  status           String   @default("1") @db.VarChar(1)        // Khanza: '0'/'1'
+
+  patients         Patient[]
+  encounters       Encounter[]
+  bills            Bill[]
+
+  @@map("penjab")
+}
+
+// ==============================================
+// SPESIALIS (Referensi)
+// Khanza: spesialis (PK: kd_sps)
+// ==============================================
+
+model Spesialis {
+  kdSps      String @id @map("kd_sps") @db.VarChar(5)
+  nmSps      String @map("nm_sps") @db.VarChar(50)
+
+  practitioners Practitioner[]
+
+  @@map("spesialis")
+}
+
+// ==============================================
 // MASTER DOKTER / TENAGA KESEHATAN
+// Khanza: dokter (PK: kd_dokter = pegawai.nik)
+//         petugas (PK: nip = pegawai.nik)
 // ==============================================
 
 model Practitioner {
   id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  nip             String?   @unique @db.VarChar(20)
-  nik             String?   @db.VarChar(16)
+  // --- Khanza mapping ---
+  kdDokter        String?   @unique @map("kd_dokter") @db.VarChar(20) // Khanza PK dokter
+  nip             String?   @unique @db.VarChar(20)     // Khanza: pegawai.nik / petugas.nip
+  nik             String?   @db.VarChar(20)
   satusehatId     String?   @map("satusehat_id") @db.VarChar(64)
-  sipNumber       String?   @map("sip_number") @db.VarChar(30)
-  strNumber       String?   @map("str_number") @db.VarChar(30)
+  sipNumber       String?   @map("sip_number") @db.VarChar(120) // Khanza: no_ijn_praktek (120)
+  strNumber       String?   @map("str_number") @db.VarChar(50)
   namaLengkap     String    @map("nama_lengkap") @db.VarChar(200)
   gelarDepan      String?   @map("gelar_depan") @db.VarChar(20)
   gelarBelakang   String?   @map("gelar_belakang") @db.VarChar(50)
   jenisKelamin    JenisKelamin @map("jenis_kelamin")
   tempatLahir     String?   @map("tempat_lahir") @db.VarChar(100)
   tanggalLahir    DateTime? @map("tanggal_lahir") @db.Date
+  // Spesialisasi — Khanza: kd_sps FK → spesialis
+  kdSps           String?   @map("kd_sps") @db.VarChar(5)
   spesialisasi    String?   @db.VarChar(100)
   subSpesialisasi String?   @map("sub_spesialisasi") @db.VarChar(100)
   jenisNakes      JenisNakes @map("jenis_nakes")
-  alamat          String?   @db.Text
-  noHp            String?   @map("no_hp") @db.VarChar(20)
+  alamat          String?   @db.VarChar(200)
+  noHp            String?   @map("no_hp") @db.VarChar(40)
   email           String?   @db.VarChar(100)
-  foto            String?   @db.VarChar(255)
+  foto            String?   @db.VarChar(500)
+  alumni          String?   @db.VarChar(60)              // Khanza: alumni
+  // Khanza: status enum('0','1')
   isActive        Boolean   @default(true) @map("is_active")
   createdAt       DateTime  @default(now()) @map("created_at")
   updatedAt       DateTime  @updatedAt @map("updated_at")
 
+  spesialisasiRef Spesialis?  @relation(fields: [kdSps], references: [kdSps])
   users           User[]
   schedules       PractitionerSchedule[]
   encounters      Encounter[]
@@ -160,11 +232,13 @@ model Practitioner {
 
   @@index([satusehatId])
   @@index([spesialisasi])
+  @@index([kdSps])
   @@map("practitioners")
 }
 
 // ==============================================
 // MASTER LOKASI / UNIT
+// Khanza: poliklinik (PK: kd_poli) + bangsal (PK: kd_bangsal)
 // ==============================================
 
 model Location {
@@ -177,6 +251,12 @@ model Location {
   gedung        String?   @db.VarChar(50)
   parentId      BigInt?   @map("parent_id") @db.UnsignedBigInt
   kapasitasBed  Int       @default(0) @map("kapasitas_bed")
+  // Khanza: poliklinik.registrasi / registrasilama
+  biayaRegistrasiBaru  Decimal? @map("biaya_registrasi_baru") @db.Decimal(15, 2)
+  biayaRegistrasiLama  Decimal? @map("biaya_registrasi_lama") @db.Decimal(15, 2)
+  // Khanza kode asli untuk mapping
+  kdPoliKhanza  String?   @map("kd_poli_khanza") @db.VarChar(5)
+  kdBangsalKhanza String? @map("kd_bangsal_khanza") @db.VarChar(5)
   isActive      Boolean   @default(true) @map("is_active")
   createdAt     DateTime  @default(now()) @map("created_at")
 
@@ -209,30 +289,46 @@ model PractitionerSchedule {
 
 // ==============================================
 // ENCOUNTER / KUNJUNGAN
+// Khanza: reg_periksa (PK: no_rawat format 'YYYY/MM/DD/NNNNNN')
 // ==============================================
 
 model Encounter {
   id              BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
-  noRawat         String          @unique @map("no_rawat") @db.VarChar(20)
+  noRawat         String          @unique @map("no_rawat") @db.VarChar(20) // Khanza: 'YYYY/MM/DD/NNNNNN'
+  noReg           String?         @map("no_reg") @db.VarChar(8)  // Khanza: no_reg (daily sequence)
   satusehatId     String?         @map("satusehat_id") @db.VarChar(64)
   patientId       BigInt          @map("patient_id") @db.UnsignedBigInt
   practitionerId  BigInt?         @map("practitioner_id") @db.UnsignedBigInt
   locationId      BigInt          @map("location_id") @db.UnsignedBigInt
-  tipe            TipeEncounter
+  tipe            TipeEncounter   // Khanza: status_lanjut 'Ralan'→RAWAT_JALAN, 'Ranap'→RAWAT_INAP
   kelasRawat      KelasRawat?     @map("kelas_rawat")
-  status          StatusEncounter @default(PLANNED)
-  tanggalMasuk    DateTime        @map("tanggal_masuk")
+  status          StatusEncounter @default(PLANNED) // Khanza: stts enum
+  tanggalMasuk    DateTime        @map("tanggal_masuk") // Khanza: tgl_registrasi + jam_reg
   tanggalKeluar   DateTime?       @map("tanggal_keluar")
+  // Penjamin — Khanza: kd_pj FK → penjab
   penjamin        Penjamin        @default(UMUM)
-  noSep           String?         @map("no_sep") @db.VarChar(20)
-  noRujukan       String?         @map("no_rujukan") @db.VarChar(20)
+  kdPj            String?         @map("kd_pj") @db.VarChar(5)   // Khanza: kd_pj
+  noSep           String?         @map("no_sep") @db.VarChar(40) // Khanza: bridging_sep.no_sep
+  noRujukan       String?         @map("no_rujukan") @db.VarChar(40)
   caraMasuk       CaraMasuk?      @map("cara_masuk")
   caraKeluar      CaraKeluar?     @map("cara_keluar")
   triaseLevel     TriaseLevel?    @map("triase_level")
   bedId           BigInt?         @map("bed_id") @db.UnsignedBigInt
+  // Khanza-specific fields
+  biayaReg        Decimal?        @map("biaya_reg") @db.Decimal(15, 2)  // Khanza: biaya_reg
+  sttsDaftar      String?         @map("stts_daftar") @db.VarChar(5)    // Khanza: 'Baru'/'Lama'
+  statusBayar     String?         @map("status_bayar") @db.VarChar(20)  // Khanza: 'Sudah Bayar'/'Belum Bayar'
+  statusPoli      String?         @map("status_poli") @db.VarChar(5)    // Khanza: 'Baru'/'Lama'
+  umurDaftar      Int?            @map("umur_daftar")                    // Khanza: umurdaftar
+  sttsUmur        String?         @map("stts_umur") @db.VarChar(2)      // Khanza: 'Th'/'Bl'/'Hr'
+  pJawab          String?         @map("p_jawab") @db.VarChar(100)      // Khanza: p_jawab (guarantor)
+  alamatPj        String?         @map("almt_pj") @db.VarChar(200)      // Khanza: almt_pj
+  hubunganPj      String?         @map("hubungan_pj") @db.VarChar(20)
+  // FHIR Sync
   fhirSynced      Boolean         @default(false) @map("fhir_synced")
   fhirSyncedAt    DateTime?       @map("fhir_synced_at")
   fhirError       String?         @map("fhir_error") @db.Text
+  // Metadata
   createdAt       DateTime        @default(now()) @map("created_at")
   updatedAt       DateTime        @updatedAt @map("updated_at")
   createdBy       BigInt?         @map("created_by") @db.UnsignedBigInt
@@ -241,6 +337,7 @@ model Encounter {
   practitioner Practitioner? @relation(fields: [practitionerId], references: [id])
   location     Location      @relation(fields: [locationId], references: [id])
   bed          Bed?          @relation(fields: [bedId], references: [id])
+  penjab       Penjab?       @relation(fields: [kdPj], references: [kdPj])
 
   diagnoses      Diagnosis[]
   procedures     Procedure[]
@@ -250,17 +347,21 @@ model Encounter {
   labOrders      LabOrder[]
   radiologyOrders RadiologyOrder[]
   bills          Bill[]
+  bridgingSep    BridgingSep?
+  kamarInap      KamarInap[]
 
   @@index([patientId])
   @@index([tanggalMasuk])
   @@index([status])
   @@index([penjamin])
+  @@index([kdPj])
   @@index([fhirSynced])
   @@map("encounters")
 }
 
 // ==============================================
 // DIAGNOSA (ICD-10)
+// Khanza: diagnosa_pasien + penyakit
 // ==============================================
 
 model Diagnosis {
@@ -268,10 +369,12 @@ model Diagnosis {
   encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
   patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
   satusehatId   String?  @map("satusehat_id") @db.VarChar(64)
-  icd10Code     String   @map("icd10_code") @db.VarChar(10)
+  icd10Code     String   @map("icd10_code") @db.VarChar(15) // Khanza: kd_penyakit (15)
   icd10Display  String?  @map("icd10_display") @db.VarChar(500)
   tipe          TipeDiagnosis @default(PRIMER)
-  rankOrder     Int      @default(1) @map("rank_order")
+  rankOrder     Int      @default(1) @map("rank_order")   // Khanza: prioritas
+  statusRawat   String?  @map("status_rawat") @db.VarChar(5) // Khanza: status 'Ralan'/'Ranap'
+  statusPenyakit String? @map("status_penyakit") @db.VarChar(5) // Khanza: 'Baru'/'Lama'
   isActive      Boolean  @default(true) @map("is_active")
   createdAt     DateTime @default(now()) @map("created_at")
   createdBy     BigInt?  @map("created_by") @db.UnsignedBigInt
@@ -285,24 +388,59 @@ model Diagnosis {
 }
 
 // ==============================================
-// PROSEDUR / TINDAKAN (ICD-9-CM)
+// PENYAKIT / ICD-10 Reference
+// Khanza: penyakit (PK: kd_penyakit)
+// ==============================================
+
+model Penyakit {
+  kdPenyakit   String  @id @map("kd_penyakit") @db.VarChar(15)
+  nmPenyakit   String? @map("nm_penyakit") @db.VarChar(250)
+  ciriCiri     String? @map("ciri_ciri") @db.Text
+  keterangan   String? @db.VarChar(60)
+  kdKtg        String? @map("kd_ktg") @db.VarChar(8)
+  status       String? @db.VarChar(20)    // 'Menular' / 'Tidak Menular'
+
+  @@index([nmPenyakit])
+  @@map("penyakit")
+}
+
+// ==============================================
+// PROSEDUR / TINDAKAN
+// Khanza: rawat_jl_dr, rawat_jl_pr, rawat_jl_drpr
+//         rawat_inap_dr, rawat_inap_pr, rawat_inap_drpr
 // ==============================================
 
 model Procedure {
   id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   encounterId     BigInt   @map("encounter_id") @db.UnsignedBigInt
   satusehatId     String?  @map("satusehat_id") @db.VarChar(64)
-  icd9cmCode      String   @map("icd9cm_code") @db.VarChar(10)
+  icd9cmCode      String?  @map("icd9cm_code") @db.VarChar(15)
   icd9cmDisplay   String?  @map("icd9cm_display") @db.VarChar(500)
+  // Khanza: kd_jenis_prw → jns_perawatan
+  kdJenisPerawatan String? @map("kd_jenis_prw") @db.VarChar(15)
+  nmPerawatan     String?  @map("nm_perawatan") @db.VarChar(200)
   tanggal         DateTime
+  jamRawat        DateTime? @map("jam_rawat") @db.Time(0)
   practitionerId  BigInt?  @map("practitioner_id") @db.UnsignedBigInt
+  petugasNip      String?  @map("petugas_nip") @db.VarChar(20) // Khanza: nip perawat
   catatan         String?  @db.Text
-  tarif           Decimal  @default(0) @db.Decimal(15, 2)
+  // Tarif breakdown — Khanza style
+  material        Decimal  @default(0) @db.Decimal(15, 2)
+  bhp             Decimal  @default(0) @db.Decimal(15, 2)
+  tarifTindakanDr Decimal  @default(0) @map("tarif_tindakan_dr") @db.Decimal(15, 2)
+  tarifTindakanPr Decimal  @default(0) @map("tarif_tindakan_pr") @db.Decimal(15, 2)
+  kso             Decimal  @default(0) @db.Decimal(15, 2)
+  menejemen       Decimal  @default(0) @db.Decimal(15, 2)
+  biayaRawat      Decimal  @default(0) @map("biaya_rawat") @db.Decimal(15, 2)
+  statusBayar     String?  @map("stts_bayar") @db.VarChar(10)  // 'Sudah'/'Belum'/'Suspen'
+  statusRawat     String?  @map("status_rawat") @db.VarChar(5) // 'Ralan'/'Ranap'
   createdAt       DateTime @default(now()) @map("created_at")
 
   encounter    Encounter    @relation(fields: [encounterId], references: [id])
   practitioner Practitioner? @relation(fields: [practitionerId], references: [id])
 
+  @@index([encounterId])
+  @@index([kdJenisPerawatan])
   @@map("procedures")
 }
 
@@ -345,7 +483,6 @@ model MedicalRecord {
   signedBy        BigInt?   @map("signed_by") @db.UnsignedBigInt
   signedAt        DateTime? @map("signed_at")
   signatureHash   String?   @map("signature_hash") @db.VarChar(255)
-  // Metadata
   tanggalInput    DateTime  @default(now()) @map("tanggal_input")
   isAmendment     Boolean   @default(false) @map("is_amendment")
   amendmentOf     BigInt?   @map("amendment_of") @db.UnsignedBigInt
@@ -398,20 +535,43 @@ model Observation {
 
 // ==============================================
 // FARMASI & OBAT
+// Khanza: databarang (PK: kode_brng) — 7 tier harga
 // ==============================================
 
 model Medicine {
   id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
-  kode            String   @unique @db.VarChar(20)
+  kode            String   @unique @db.VarChar(15)       // Khanza: kode_brng (15)
   namaGenerik     String   @map("nama_generik") @db.VarChar(200)
-  namaDagang      String?  @map("nama_dagang") @db.VarChar(200)
-  satuan          String   @db.VarChar(20)
+  namaDagang      String?  @map("nama_dagang") @db.VarChar(200) // Khanza: nama_brng
+  satuan          String   @db.VarChar(20)               // Khanza: kode_sat → kodesatuan
+  satuanBesar     String?  @map("satuan_besar") @db.VarChar(20) // Khanza: kode_satbesar
+  isi             Decimal  @default(1) @db.Decimal(10, 2) // Khanza: isi (contents per large unit)
   kategori        KategoriObat @default(OBAT)
   golongan        GolonganObat?
-  hargaBeli       Decimal  @default(0) @map("harga_beli") @db.Decimal(15, 2)
-  hargaJual       Decimal  @default(0) @map("harga_jual") @db.Decimal(15, 2)
+  // Harga beli
+  hargaDasar      Decimal  @default(0) @map("harga_dasar") @db.Decimal(15, 2)  // Khanza: dasar
+  hargaBeli       Decimal  @default(0) @map("harga_beli") @db.Decimal(15, 2)   // Khanza: h_beli
+  // 7 Tier Harga Jual — Khanza style
+  hargaJualRalan  Decimal  @default(0) @map("harga_jual_ralan") @db.Decimal(15, 2) // Khanza: ralan
+  hargaJualKelas1 Decimal  @default(0) @map("harga_jual_kelas1") @db.Decimal(15, 2) // Khanza: kelas1
+  hargaJualKelas2 Decimal  @default(0) @map("harga_jual_kelas2") @db.Decimal(15, 2) // Khanza: kelas2
+  hargaJualKelas3 Decimal  @default(0) @map("harga_jual_kelas3") @db.Decimal(15, 2) // Khanza: kelas3
+  hargaJualUtama  Decimal  @default(0) @map("harga_jual_utama") @db.Decimal(15, 2)  // Khanza: utama
+  hargaJualVip    Decimal  @default(0) @map("harga_jual_vip") @db.Decimal(15, 2)    // Khanza: vip
+  hargaJualVvip   Decimal  @default(0) @map("harga_jual_vvip") @db.Decimal(15, 2)   // Khanza: vvip
+  hargaJualBebas  Decimal  @default(0) @map("harga_jual_bebas") @db.Decimal(15, 2)  // Khanza: jualbebas
+  hargaKaryawan   Decimal  @default(0) @map("harga_karyawan") @db.Decimal(15, 2)    // Khanza: karyawan
+  hargaBeliLuar   Decimal  @default(0) @map("harga_beli_luar") @db.Decimal(15, 2)   // Khanza: beliluar
+  // Stock & metadata
   stokMinimum     Int      @default(10) @map("stok_minimum")
+  kapasitas       Decimal  @default(0) @db.Decimal(10, 2) // Khanza: kapasitas
+  letakBarang     String?  @map("letak_barang") @db.VarChar(100)  // Khanza: letak_barang
   isFormularium   Boolean  @default(true) @map("is_formularium")
+  // Khanza FK references
+  kodeIndustri    String?  @map("kode_industri") @db.VarChar(5)   // Khanza: kode_industri
+  kodeKategori    String?  @map("kode_kategori") @db.VarChar(4)   // Khanza: kode_kategori
+  kodeGolongan    String?  @map("kode_golongan") @db.VarChar(4)   // Khanza: kode_golongan
+  expire          DateTime? @db.Date                               // Khanza: expire
   isActive        Boolean  @default(true) @map("is_active")
   createdAt       DateTime @default(now()) @map("created_at")
 
@@ -419,6 +579,7 @@ model Medicine {
   prescriptionItems PrescriptionItem[]
 
   @@index([namaGenerik])
+  @@index([namaDagang])
   @@map("medicines")
 }
 
@@ -426,7 +587,8 @@ model MedicineStock {
   id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   medicineId    BigInt   @map("medicine_id") @db.UnsignedBigInt
   locationId    BigInt   @map("location_id") @db.UnsignedBigInt
-  batchNumber   String?  @map("batch_number") @db.VarChar(30)
+  batchNumber   String?  @map("batch_number") @db.VarChar(30) // Khanza: no_batch
+  noFaktur      String?  @map("no_faktur") @db.VarChar(20)    // Khanza: no_faktur
   expiredDate   DateTime? @map("expired_date") @db.Date
   stok          Int      @default(0)
   createdAt     DateTime @default(now()) @map("created_at")
@@ -440,14 +602,25 @@ model MedicineStock {
   @@map("medicine_stocks")
 }
 
+// ==============================================
+// RESEP OBAT
+// Khanza: resep_obat (PK: no_resep) + detail_pemberian_obat
+// ==============================================
+
 model Prescription {
   id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
   patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
   prescriberId  BigInt   @map("prescriber_id") @db.UnsignedBigInt
-  noResep       String   @unique @map("no_resep") @db.VarChar(20)
+  noResep       String   @unique @map("no_resep") @db.VarChar(20) // Khanza: no_resep (14)
   status        StatusResep @default(DRAFT)
   jenis         JenisResep  @default(NON_RACIKAN)
+  // Khanza: status 'ralan'/'ranap'
+  statusRawat   String?  @map("status_rawat") @db.VarChar(5)
+  tglPeresepan  DateTime? @map("tgl_peresepan") @db.Date
+  jamPeresepan  DateTime? @map("jam_peresepan") @db.Time(0)
+  tglPenyerahan DateTime? @map("tgl_penyerahan") @db.Date
+  jamPenyerahan DateTime? @map("jam_penyerahan") @db.Time(0)
   catatan       String?  @db.Text
   createdAt     DateTime @default(now()) @map("created_at")
 
@@ -463,15 +636,22 @@ model PrescriptionItem {
   id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   prescriptionId  BigInt   @map("prescription_id") @db.UnsignedBigInt
   medicineId      BigInt   @map("medicine_id") @db.UnsignedBigInt
-  jumlah          Decimal  @db.Decimal(10, 2)
+  jumlah          Decimal  @db.Decimal(10, 2)       // Khanza: jml
   dosis           String?  @db.VarChar(50)
   rute            String?  @db.VarChar(30)
   frekuensi       String?  @db.VarChar(50)
   durasiHari      Int?     @map("durasi_hari")
   aturanPakai     String?  @map("aturan_pakai") @db.Text
   catatan         String?  @db.Text
-  hargaSatuan     Decimal? @map("harga_satuan") @db.Decimal(15, 2)
-  subtotal        Decimal? @db.Decimal(15, 2)
+  // Harga — Khanza: h_beli, biaya_obat, embalase, tuslah
+  hargaBeli       Decimal? @map("harga_beli") @db.Decimal(15, 2)
+  hargaSatuan     Decimal? @map("harga_satuan") @db.Decimal(15, 2)  // Khanza: biaya_obat
+  embalase        Decimal? @db.Decimal(15, 2)     // Khanza: embalase
+  tuslah          Decimal? @db.Decimal(15, 2)     // Khanza: tuslah
+  subtotal        Decimal? @db.Decimal(15, 2)     // Khanza: total
+  // Batch tracking
+  noBatch         String?  @map("no_batch") @db.VarChar(20)
+  noFaktur        String?  @map("no_faktur") @db.VarChar(20)
 
   prescription Prescription @relation(fields: [prescriptionId], references: [id])
   medicine     Medicine     @relation(fields: [medicineId], references: [id])
@@ -481,26 +661,31 @@ model PrescriptionItem {
 
 // ==============================================
 // BILLING & KEUANGAN
+// Khanza: nota_jalan + billing (denormalized)
+//         + detail_nota_jalan (payment methods)
 // ==============================================
 
 model Bill {
   id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   encounterId   BigInt   @map("encounter_id") @db.UnsignedBigInt
   patientId     BigInt   @map("patient_id") @db.UnsignedBigInt
-  noInvoice     String   @unique @map("no_invoice") @db.VarChar(20)
+  noInvoice     String   @unique @map("no_invoice") @db.VarChar(20)  // Khanza: nota_jalan.no_nota
   tanggal       DateTime @db.Date
   totalTarif    Decimal  @default(0) @map("total_tarif") @db.Decimal(15, 2)
   totalDiskon   Decimal  @default(0) @map("total_diskon") @db.Decimal(15, 2)
   totalBayar    Decimal  @default(0) @map("total_bayar") @db.Decimal(15, 2)
   sisaBayar     Decimal  @default(0) @map("sisa_bayar") @db.Decimal(15, 2)
   penjamin      Penjamin
+  kdPj          String?  @map("kd_pj") @db.VarChar(5)
   tarifInacbgs  Decimal  @default(0) @map("tarif_inacbgs") @db.Decimal(15, 2)
   selisihKlaim  Decimal  @default(0) @map("selisih_klaim") @db.Decimal(15, 2)
+  besarPpn      Decimal  @default(0) @map("besar_ppn") @db.Decimal(15, 2)  // Khanza: besarppn
   status        StatusBill @default(OPEN)
   createdAt     DateTime @default(now()) @map("created_at")
 
   encounter Encounter  @relation(fields: [encounterId], references: [id])
   patient   Patient    @relation(fields: [patientId], references: [id])
+  penjab    Penjab?    @relation(fields: [kdPj], references: [kdPj])
   items     BillItem[]
   payments  Payment[]
 
@@ -510,12 +695,14 @@ model Bill {
 model BillItem {
   id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   billId        BigInt   @map("bill_id") @db.UnsignedBigInt
+  // Khanza billing.status categories
   kategori      KategoriBilling
-  deskripsi     String   @db.VarChar(500)
+  deskripsi     String   @db.VarChar(500)      // Khanza: nm_perawatan
   jumlah        Decimal  @default(1) @db.Decimal(10, 2)
-  tarif         Decimal  @db.Decimal(15, 2)
+  tarif         Decimal  @db.Decimal(15, 2)    // Khanza: biaya
+  tambahan      Decimal  @default(0) @db.Decimal(15, 2)  // Khanza: tambahan
   diskon        Decimal  @default(0) @db.Decimal(15, 2)
-  subtotal      Decimal  @db.Decimal(15, 2)
+  subtotal      Decimal  @db.Decimal(15, 2)    // Khanza: totalbiaya
   referenceType String?  @map("reference_type") @db.VarChar(50)
   referenceId   BigInt?  @map("reference_id") @db.UnsignedBigInt
 
@@ -530,6 +717,7 @@ model Payment {
   tanggal    DateTime
   jumlah     Decimal  @db.Decimal(15, 2)
   metode     MetodeBayar
+  namaBayar  String?  @map("nama_bayar") @db.VarChar(50)  // Khanza: detail_nota_jalan.nama_bayar
   referensi  String?  @db.VarChar(100)
   kasirId    BigInt?  @map("kasir_id") @db.UnsignedBigInt
   createdAt  DateTime @default(now()) @map("created_at")
@@ -541,6 +729,7 @@ model Payment {
 
 // ==============================================
 // LABORATORIUM
+// Khanza: periksa_lab + detail_periksa_lab + template_laboratorium
 // ==============================================
 
 model LabOrder {
@@ -553,6 +742,16 @@ model LabOrder {
   status        StatusLabOrder @default(ORDERED)
   prioritas     PrioritasLab   @default(ROUTINE)
   catatanKlinis String?  @map("catatan_klinis") @db.Text
+  // Khanza: periksa_lab fields
+  kategoriLab   String?  @map("kategori_lab") @db.VarChar(5) // 'PA'/'PK'/'MB'
+  statusRawat   String?  @map("status_rawat") @db.VarChar(5) // 'Ralan'/'Ranap'
+  // Tarif breakdown — Khanza
+  bagianRs      Decimal  @default(0) @map("bagian_rs") @db.Decimal(15, 2)
+  bhp           Decimal  @default(0) @db.Decimal(15, 2)
+  tarifPerujuk  Decimal  @default(0) @map("tarif_perujuk") @db.Decimal(15, 2)
+  tarifDokter   Decimal  @default(0) @map("tarif_dokter") @db.Decimal(15, 2)
+  tarifPetugas  Decimal  @default(0) @map("tarif_petugas") @db.Decimal(15, 2)
+  biayaTotal    Decimal  @default(0) @map("biaya_total") @db.Decimal(15, 2)
   createdAt     DateTime @default(now()) @map("created_at")
 
   encounter Encounter    @relation(fields: [encounterId], references: [id])
@@ -568,6 +767,7 @@ model LabOrderItem {
   labOrderId   BigInt  @map("lab_order_id") @db.UnsignedBigInt
   pemeriksaan  String  @db.VarChar(200)
   loincCode    String? @map("loinc_code") @db.VarChar(20)
+  kdJenisPerawatan String? @map("kd_jenis_prw") @db.VarChar(15) // Khanza FK
   tarif        Decimal @default(0) @db.Decimal(15, 2)
 
   labOrder LabOrder    @relation(fields: [labOrderId], references: [id])
@@ -580,10 +780,12 @@ model LabResult {
   id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
   labOrderItemId  BigInt    @map("lab_order_item_id") @db.UnsignedBigInt
   parameter       String    @db.VarChar(200)
-  hasil           String?   @db.VarChar(200)
+  hasil           String?   @db.VarChar(200)     // Khanza: nilai
   satuan          String?   @db.VarChar(50)
-  nilaiNormal     String?   @map("nilai_normal") @db.VarChar(200)
-  flag            FlagHasil?
+  nilaiNormal     String?   @map("nilai_normal") @db.VarChar(200) // Khanza: nilai_rujukan
+  flag            FlagHasil?                      // Khanza: keterangan 'h','l', etc.
+  idTemplate      Int?      @map("id_template")  // Khanza: id_template
+  biayaItem       Decimal   @default(0) @map("biaya_item") @db.Decimal(15, 2)
   validatorId     BigInt?   @map("validator_id") @db.UnsignedBigInt
   validatedAt     DateTime? @map("validated_at")
   createdAt       DateTime  @default(now()) @map("created_at")
@@ -595,6 +797,7 @@ model LabResult {
 
 // ==============================================
 // RADIOLOGI
+// Khanza: periksa_radiologi
 // ==============================================
 
 model RadiologyOrder {
@@ -605,13 +808,28 @@ model RadiologyOrder {
   noOrder             String   @unique @map("no_order") @db.VarChar(20)
   accessionNumber     String?  @map("accession_number") @db.VarChar(30)
   jenisPemeriksaan    String   @map("jenis_pemeriksaan") @db.VarChar(200)
+  kdJenisPerawatan    String?  @map("kd_jenis_prw") @db.VarChar(15) // Khanza FK
   modalitas           Modalitas
   status              StatusRadOrder @default(ORDERED)
+  statusRawat         String?  @map("status_rawat") @db.VarChar(5)
   catatanKlinis       String?  @map("catatan_klinis") @db.Text
   hasilBacaan         String?  @map("hasil_bacaan") @db.Text
   kesan               String?  @db.Text
   radiologistId       BigInt?  @map("radiologist_id") @db.UnsignedBigInt
   tanggalPemeriksaan  DateTime? @map("tanggal_pemeriksaan")
+  // Khanza: exposure parameters
+  proyeksi            String?  @db.VarChar(50)
+  kV                  String?  @db.VarChar(10)
+  mAS                 String?  @db.VarChar(10)
+  ffd                 String?  @db.VarChar(10)
+  dosis               String?  @db.VarChar(20)
+  // Tarif breakdown — Khanza
+  bagianRs            Decimal  @default(0) @map("bagian_rs") @db.Decimal(15, 2)
+  bhp                 Decimal  @default(0) @db.Decimal(15, 2)
+  tarifPerujuk        Decimal  @default(0) @map("tarif_perujuk") @db.Decimal(15, 2)
+  tarifDokter         Decimal  @default(0) @map("tarif_dokter") @db.Decimal(15, 2)
+  tarifPetugas        Decimal  @default(0) @map("tarif_petugas") @db.Decimal(15, 2)
+  biayaTotal          Decimal  @default(0) @map("biaya_total") @db.Decimal(15, 2)
   createdAt           DateTime @default(now()) @map("created_at")
 
   encounter Encounter @relation(fields: [encounterId], references: [id])
@@ -622,21 +840,91 @@ model RadiologyOrder {
 
 // ==============================================
 // BED MANAGEMENT
+// Khanza: kamar (PK: kd_kamar) + bangsal
 // ==============================================
 
 model Bed {
   id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   locationId    BigInt   @map("location_id") @db.UnsignedBigInt
-  nomorBed      String   @map("nomor_bed") @db.VarChar(10)
+  nomorBed      String   @map("nomor_bed") @db.VarChar(15) // Khanza: kd_kamar (15)
   kelas         KelasBed
   status        StatusBed @default(TERSEDIA)
-  tarifPerHari  Decimal  @default(0) @map("tarif_per_hari") @db.Decimal(15, 2)
+  tarifPerHari  Decimal  @default(0) @map("tarif_per_hari") @db.Decimal(15, 2) // Khanza: trf_kamar
+  // Khanza kode asli
+  kdKamarKhanza String?  @map("kd_kamar_khanza") @db.VarChar(15)
 
   location   Location    @relation(fields: [locationId], references: [id])
   encounters Encounter[]
+  kamarInap  KamarInap[]
 
   @@unique([locationId, nomorBed])
   @@map("beds")
+}
+
+// ==============================================
+// KAMAR INAP (Bed Occupancy History)
+// Khanza: kamar_inap (composite PK: no_rawat, tgl_masuk, jam_masuk)
+// ==============================================
+
+model KamarInap {
+  id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  encounterId     BigInt   @map("encounter_id") @db.UnsignedBigInt
+  bedId           BigInt   @map("bed_id") @db.UnsignedBigInt
+  tarifKamar      Decimal  @default(0) @map("trf_kamar") @db.Decimal(15, 2)
+  diagnosaAwal    String?  @map("diagnosa_awal") @db.VarChar(100)
+  diagnosaAkhir   String?  @map("diagnosa_akhir") @db.VarChar(100)
+  tglMasuk        DateTime @map("tgl_masuk") @db.Date
+  jamMasuk        DateTime @map("jam_masuk") @db.Time(0)
+  tglKeluar       DateTime? @map("tgl_keluar") @db.Date
+  jamKeluar       DateTime? @map("jam_keluar") @db.Time(0)
+  lama            Int?     // Khanza: lama (hari rawat)
+  ttlBiaya        Decimal  @default(0) @map("ttl_biaya") @db.Decimal(15, 2)
+  sttsPulang      String?  @map("stts_pulang") @db.VarChar(50) // Khanza: enum panjang
+
+  encounter Encounter @relation(fields: [encounterId], references: [id])
+  bed       Bed       @relation(fields: [bedId], references: [id])
+
+  @@index([encounterId])
+  @@map("kamar_inap")
+}
+
+// ==============================================
+// BRIDGING SEP (BPJS)
+// Khanza: bridging_sep (PK: no_sep)
+// ==============================================
+
+model BridgingSep {
+  noSep            String   @id @map("no_sep") @db.VarChar(40)
+  encounterId      BigInt   @unique @map("encounter_id") @db.UnsignedBigInt
+  tglSep           DateTime? @map("tgl_sep") @db.Date
+  tglRujukan       DateTime? @map("tgl_rujukan") @db.Date
+  noRujukan        String?  @map("no_rujukan") @db.VarChar(40)
+  kdPpkRujukan     String?  @map("kd_ppk_rujukan") @db.VarChar(12)
+  nmPpkRujukan     String?  @map("nm_ppk_rujukan") @db.VarChar(200)
+  kdPpkPelayanan   String?  @map("kd_ppk_pelayanan") @db.VarChar(12)
+  nmPpkPelayanan   String?  @map("nm_ppk_pelayanan") @db.VarChar(200)
+  jnsPelayanan     String?  @map("jns_pelayanan") @db.VarChar(1) // '1'=Ralan, '2'=Ranap
+  catatan          String?  @db.VarChar(200)
+  diagAwal         String?  @map("diag_awal") @db.VarChar(15)
+  nmDiagnosaAwal   String?  @map("nm_diagnosa_awal") @db.VarChar(400)
+  kdPoliTujuan     String?  @map("kd_poli_tujuan") @db.VarChar(15)
+  nmPoliTujuan     String?  @map("nm_poli_tujuan") @db.VarChar(50)
+  klsRawat         String?  @map("kls_rawat") @db.VarChar(1) // '1','2','3'
+  noKartu          String?  @map("no_kartu") @db.VarChar(25)
+  namaPasien       String?  @map("nama_pasien") @db.VarChar(100)
+  tanggalLahir     DateTime? @map("tanggal_lahir") @db.Date
+  jkel             String?  @db.VarChar(1) // 'L','P'
+  peserta          String?  @db.VarChar(100) // tipe peserta
+  tglPulang        DateTime? @map("tgl_pulang")
+  kdDpjp           String?  @map("kd_dpjp") @db.VarChar(10)
+  nmDpjp           String?  @map("nm_dpjp") @db.VarChar(100)
+  noTelep          String?  @map("no_telep") @db.VarChar(40)
+  asalRujukan      String?  @map("asal_rujukan") @db.VarChar(30)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  encounter Encounter @relation(fields: [encounterId], references: [id])
+
+  @@map("bridging_sep")
 }
 
 // ==============================================
@@ -666,20 +954,28 @@ model QueueTicket {
 
 // ==============================================
 // KEPEGAWAIAN
+// Khanza: pegawai (PK: id, UNIQUE: nik)
 // ==============================================
 
 model Employee {
   id              BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   practitionerId  BigInt?  @map("practitioner_id") @db.UnsignedBigInt
-  nip             String?  @db.VarChar(20)
+  nip             String?  @db.VarChar(20)       // Khanza: nik
   namaLengkap     String   @map("nama_lengkap") @db.VarChar(200)
-  jabatan         String?  @db.VarChar(100)
+  jabatan         String?  @db.VarChar(100)      // Khanza: jbtn
   unitKerja       String?  @map("unit_kerja") @db.VarChar(100)
+  departemen      String?  @db.VarChar(50)       // Khanza: departemen
   statusPegawai   StatusPegawai? @map("status_pegawai")
-  tanggalMasuk    DateTime? @map("tanggal_masuk") @db.Date
+  tanggalMasuk    DateTime? @map("tanggal_masuk") @db.Date  // Khanza: mulai_kerja
   rekeningBank    String?  @map("rekening_bank") @db.VarChar(30)
-  namaBank        String?  @map("nama_bank") @db.VarChar(50)
+  namaBank        String?  @map("nama_bank") @db.VarChar(50) // Khanza: bpd
   npwp            String?  @db.VarChar(20)
+  noKtp           String?  @map("no_ktp") @db.VarChar(20)
+  gapok           Decimal? @db.Decimal(15, 2)    // Khanza: gapok
+  pendidikan      String?  @db.VarChar(80)       // Khanza: pendidikan
+  photo           String?  @db.VarChar(500)
+  // Khanza status
+  sttsAktif       String?  @map("stts_aktif") @db.VarChar(20) // 'AKTIF','CUTI','KELUAR'...
   isActive        Boolean  @default(true) @map("is_active")
   createdAt       DateTime @default(now()) @map("created_at")
 
@@ -690,7 +986,7 @@ model Employee {
 }
 
 // ==============================================
-// LOGISTIK & INVENTARIS
+// LOGISTIK, ASET, AUDIT — same as before
 // ==============================================
 
 model InventoryItem {
@@ -707,10 +1003,6 @@ model InventoryItem {
 
   @@map("inventory_items")
 }
-
-// ==============================================
-// MANAJEMEN ASET
-// ==============================================
 
 model Asset {
   id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
@@ -729,10 +1021,6 @@ model Asset {
 
   @@map("assets")
 }
-
-// ==============================================
-// AUDIT TRAIL
-// ==============================================
 
 model AuditLog {
   id          BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
@@ -754,7 +1042,7 @@ model AuditLog {
 }
 
 // ==============================================
-// SATUSEHAT SYNC LOG
+// SATUSEHAT & BPJS SYNC LOGS
 // ==============================================
 
 model SatusehatSyncLog {
@@ -777,10 +1065,6 @@ model SatusehatSyncLog {
   @@map("satusehat_sync_logs")
 }
 
-// ==============================================
-// BPJS SYNC LOG
-// ==============================================
-
 model BpjsSyncLog {
   id            BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
   service       BpjsService
@@ -800,29 +1084,6 @@ model BpjsSyncLog {
 }
 
 // ==============================================
-// ICD-10 REFERENCE TABLE
-// ==============================================
-
-model Icd10 {
-  id       BigInt @id @default(autoincrement()) @db.UnsignedBigInt
-  code     String @unique @db.VarChar(10)
-  display  String @db.VarChar(500)
-  category String? @db.VarChar(200)
-
-  @@index([display])
-  @@map("icd10_codes")
-}
-
-model Icd9cm {
-  id       BigInt @id @default(autoincrement()) @db.UnsignedBigInt
-  code     String @unique @db.VarChar(10)
-  display  String @db.VarChar(500)
-
-  @@index([display])
-  @@map("icd9cm_codes")
-}
-
-// ==============================================
 // ENUMS
 // ==============================================
 
@@ -837,13 +1098,6 @@ enum GolonganDarah {
   AB
   O
   TIDAK_DIKETAHUI @map("-")
-}
-
-enum StatusNikah {
-  BELUM_KAWIN
-  KAWIN
-  CERAI_HIDUP
-  CERAI_MATI
 }
 
 enum JenisNakes {
@@ -1011,6 +1265,7 @@ enum KategoriBilling {
   TINDAKAN
   KAMAR
   ADMINISTRASI
+  REGISTRASI
   LAINNYA
 }
 
