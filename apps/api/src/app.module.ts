@@ -19,6 +19,11 @@ import { SatusehatModule } from './modules/satusehat/satusehat.module';
 import { SurgeryModule } from './modules/surgery/surgery.module';
 import { NutritionModule } from './modules/nutrition/nutrition.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { AssetsModule } from './modules/assets/assets.module';
+import { LogisticsModule } from './modules/logistics/logistics.module';
+import { HrModule } from './modules/hr/hr.module';
+import { FinanceModule } from './modules/finance/finance.module';
+import { SirsModule } from './modules/sirs/sirs.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { HealthController } from './health.controller';
 
@@ -46,6 +51,11 @@ import { HealthController } from './health.controller';
     SurgeryModule,
     NutritionModule,
     AnalyticsModule,
+    AssetsModule,
+    LogisticsModule,
+    HrModule,
+    FinanceModule,
+    SirsModule,
   ],
   controllers: [HealthController],
   providers: [

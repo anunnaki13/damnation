@@ -1,48 +1,93 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api-client';
 import { PageHeader } from '@/components/ui/page-header';
+import { DataTable } from '@/components/ui/data-table';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { Modal } from '@/components/ui/modal';
+import { FormField } from '@/components/ui/form-field';
+
+const KONDISI_VARIANT: Record<string, 'success' | 'warning' | 'danger' | 'default'> = {
+  BAIK: 'success', RUSAK_RINGAN: 'warning', RUSAK_BERAT: 'danger', DIHAPUSKAN: 'default',
+};
 
 export default function AsetPage() {
+  const [assets, setAssets] = useState<any[]>([]);
+  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 });
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ kodeAset: '', nama: '', kategori: 'ALAT_MEDIS', merk: '', lokasi: '', kondisi: 'BAIK', hargaPerolehan: 0 });
+
+  useEffect(() => {
+    apiClient.get('/assets/stats').then((r) => setStats(r.data)).catch(() => {});
+    apiClient.get('/assets').then((r) => { setAssets(r.data.data); setMeta(r.data.meta); setLoading(false); }).catch(() => setLoading(false));
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await apiClient.post('/assets', form);
+      setShowForm(false);
+      const res = await apiClient.get('/assets');
+      setAssets(res.data.data); setMeta(res.data.meta);
+      apiClient.get('/assets/stats').then((r) => setStats(r.data));
+    } catch (err: any) { alert(err.response?.data?.message || 'Gagal simpan'); }
+  };
+
+  const columns = [
+    { key: 'kodeAset', label: 'Kode', className: 'font-mono text-[var(--primary-soft)]' },
+    { key: 'nama', label: 'Nama Aset', sortable: true },
+    { key: 'kategori', label: 'Kategori', render: (v: string) => <StatusBadge status={v?.replace('_', ' ') || '-'} variant="primary" /> },
+    { key: 'merk', label: 'Merk', render: (v: string) => v || '-' },
+    { key: 'lokasi', label: 'Lokasi', render: (v: string) => v || '-' },
+    { key: 'kondisi', label: 'Kondisi', render: (v: string) => <StatusBadge status={v?.replace('_', ' ') || '-'} variant={KONDISI_VARIANT[v] || 'default'} /> },
+  ];
+
   return (
     <div>
-      <PageHeader title="Manajemen Aset" description="Inventaris alat medis, kendaraan, dan peralatan RS" />
+      <PageHeader title="Manajemen Aset" description={`${stats?.total || 0} aset terdaftar`}
+        action={<button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm">+ Tambah Aset</button>} />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {[
-          { label: 'Total Aset', value: '0', color: 'var(--text-1)' },
-          { label: 'Kondisi Baik', value: '0', color: 'var(--teal)' },
-          { label: 'Perlu Maintenance', value: '0', color: 'var(--amber)' },
-          { label: 'Rusak/Dihapuskan', value: '0', color: 'var(--rose)' },
-        ].map((s) => (
-          <div key={s.label} className="stat-card" style={{ '--stat-color': s.color } as any}>
-            <p className="stat-label">{s.label}</p>
-            <p className="stat-value mt-2" style={{ color: s.color }}>{s.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="card-flat p-5">
-        <p className="overline mb-4">Kategori Aset</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      {stats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
-            { label: 'Alat Medis', icon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z' },
-            { label: 'Kendaraan', icon: 'M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12' },
-            { label: 'Komputer & IT', icon: 'M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25' },
-            { label: 'Meubelair', icon: 'M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25' },
-            { label: 'Bangunan', icon: 'M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21' },
-            { label: 'Lainnya', icon: 'M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z' },
-          ].map((cat) => (
-            <div key={cat.label} className="card-flat p-4 flex items-center gap-3 hover:border-[var(--glass-border-hover)] transition cursor-pointer">
-              <div className="w-10 h-10 rounded-[10px] flex items-center justify-center" style={{ background: 'var(--primary-dim)' }}>
-                <svg className="w-5 h-5" style={{ color: 'var(--primary-soft)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d={cat.icon} />
-                </svg>
-              </div>
-              <span className="text-[13px] font-medium" style={{ color: 'var(--text-1)' }}>{cat.label}</span>
+            { label: 'Total Aset', value: stats.total, color: 'var(--text-1)' },
+            { label: 'Kondisi Baik', value: stats.baik, color: 'var(--teal)' },
+            { label: 'Rusak', value: stats.rusak, color: 'var(--amber)' },
+            { label: 'Dihapuskan', value: stats.dihapuskan, color: 'var(--rose)' },
+          ].map((s) => (
+            <div key={s.label} className="stat-card" style={{ '--stat-color': s.color } as any}>
+              <p className="stat-label">{s.label}</p>
+              <p className="stat-value mt-2" style={{ color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
-      </div>
+      )}
+
+      <DataTable columns={columns} data={assets} isLoading={loading} totalPages={meta.totalPages} currentPage={meta.page} />
+
+      <Modal isOpen={showForm} onClose={() => setShowForm(false)} title="Tambah Aset" size="md">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Kode Aset" required><input value={form.kodeAset} onChange={(e) => setForm({ ...form, kodeAset: e.target.value })} className="input" required /></FormField>
+            <FormField label="Nama" required><input value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })} className="input" required /></FormField>
+            <FormField label="Kategori"><select value={form.kategori} onChange={(e) => setForm({ ...form, kategori: e.target.value })} className="select">
+              {['ALAT_MEDIS', 'KENDARAAN', 'BANGUNAN', 'MEUBELAIR', 'KOMPUTER', 'LAINNYA'].map((k) => <option key={k} value={k}>{k.replace('_', ' ')}</option>)}
+            </select></FormField>
+            <FormField label="Kondisi"><select value={form.kondisi} onChange={(e) => setForm({ ...form, kondisi: e.target.value })} className="select">
+              {['BAIK', 'RUSAK_RINGAN', 'RUSAK_BERAT'].map((k) => <option key={k} value={k}>{k.replace('_', ' ')}</option>)}
+            </select></FormField>
+            <FormField label="Merk"><input value={form.merk} onChange={(e) => setForm({ ...form, merk: e.target.value })} className="input" /></FormField>
+            <FormField label="Lokasi"><input value={form.lokasi} onChange={(e) => setForm({ ...form, lokasi: e.target.value })} className="input" /></FormField>
+          </div>
+          <div className="flex justify-end gap-2 pt-4 border-t border-[var(--glass-border)]">
+            <button type="button" onClick={() => setShowForm(false)} className="btn btn-ghost btn-sm">Batal</button>
+            <button type="submit" className="btn btn-primary btn-sm">Simpan</button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

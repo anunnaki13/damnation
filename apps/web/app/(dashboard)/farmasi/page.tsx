@@ -235,7 +235,7 @@ export default function FarmasiPage() {
           <p className="text-sm mt-1">Fitur penerimaan barang, stok opname, dan kartu stok tersedia via API.</p>
           <div className="grid grid-cols-2 gap-3 mt-6 max-w-md mx-auto">
             <a href="/admin/obat" className="glass-btn px-4 py-2.5 text-sm text-center rounded-xl block">Master Obat</a>
-            <button className="glass-btn-outline px-4 py-2.5 text-sm rounded-xl">Stok Opname</button>
+            <button onClick={() => alert('Fitur stok opname tersedia via API:\nPOST /pharmacy/stock/adjust/:stockId\n\nGunakan Swagger docs untuk detail.')} className="btn btn-ghost">Stok Opname</button>
           </div>
         </div>
       )}

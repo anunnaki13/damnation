@@ -161,7 +161,12 @@ export default function BpjsPage() {
               <div className="mt-6 flex gap-3">
                 <button onClick={() => setShowSepForm(true)}
                   className="px-4 py-2 glass-btn text-sm">Buat SEP</button>
-                <button className="px-4 py-2 glass-btn-outline text-sm rounded-xl">
+                <button onClick={async () => {
+                  try {
+                    const res = await apiClient.get(`/bpjs/rujukan/peserta/${noBpjs}`);
+                    alert(JSON.stringify(res.data?.response || res.data, null, 2));
+                  } catch (err: any) { alert(err.response?.data?.message || 'Gagal cek rujukan'); }
+                }} className="btn btn-ghost btn-sm">
                   Cek Rujukan
                 </button>
               </div>
