@@ -171,14 +171,14 @@ export default function LaboratoriumPage() {
 
             {/* Items + Results */}
             {selectedOrder.items?.map((item: any) => (
-              <div key={item.id} className="bg-white/[0.02] rounded-xl p-4">
+              <div key={item.id} className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4">
                 <p className="text-white font-medium text-sm mb-2">{item.pemeriksaan}</p>
 
                 {/* Existing results */}
                 {item.results?.length > 0 && (
                   <div className="space-y-1 mb-3">
                     {item.results.map((r: any) => (
-                      <div key={r.id} className="flex items-center justify-between text-sm bg-white/[0.02] rounded-lg px-3 py-1.5">
+                      <div key={r.id} className="flex items-center justify-between text-sm bg-[rgba(255,255,255,0.03)] rounded-lg px-3 py-1.5">
                         <span className="text-slate-400">{r.parameter}</span>
                         <div className="flex items-center gap-3">
                           <span className={`font-medium ${r.flag === 'HIGH' || r.flag === 'CRITICAL_HIGH' ? 'text-red-400' : r.flag === 'LOW' || r.flag === 'CRITICAL_LOW' ? 'text-blue-400' : 'text-white'}`}>

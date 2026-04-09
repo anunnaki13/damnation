@@ -76,7 +76,7 @@ export default function ObatPage() {
         description={`Total: ${meta.total} item`}
         action={
           <button onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700">
+            className="btn btn-primary btn-sm">
             + Tambah Obat
           </button>
         }
@@ -94,49 +94,49 @@ export default function ObatPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="Kode Obat" required>
               <input type="text" value={form.kode} onChange={(e) => setForm({ ...form, kode: e.target.value.toUpperCase() })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required placeholder="OBT-001" />
+                className="input" required placeholder="OBT-001" />
             </FormField>
             <FormField label="Satuan" required>
               <input type="text" value={form.satuan} onChange={(e) => setForm({ ...form, satuan: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required placeholder="tablet" />
+                className="input" required placeholder="tablet" />
             </FormField>
             <FormField label="Nama Generik" required>
               <input type="text" value={form.namaGenerik} onChange={(e) => setForm({ ...form, namaGenerik: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required />
+                className="input" required />
             </FormField>
             <FormField label="Nama Dagang">
               <input type="text" value={form.namaDagang} onChange={(e) => setForm({ ...form, namaDagang: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="Kategori">
               <select value={form.kategori} onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 {KATEGORI.map((k) => <option key={k} value={k}>{k}</option>)}
               </select>
             </FormField>
             <FormField label="Golongan">
               <select value={form.golongan} onChange={(e) => setForm({ ...form, golongan: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 <option value="">-- Pilih --</option>
                 {GOLONGAN.map((g) => <option key={g} value={g}>{g.replace('_', ' ')}</option>)}
               </select>
             </FormField>
             <FormField label="Harga Beli (Rp)">
               <input type="number" value={form.hargaBeli} onChange={(e) => setForm({ ...form, hargaBeli: Number(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" min={0} />
+                className="input" min={0} />
             </FormField>
             <FormField label="Harga Jual (Rp)">
               <input type="number" value={form.hargaJual} onChange={(e) => setForm({ ...form, hargaJual: Number(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" min={0} />
+                className="input" min={0} />
             </FormField>
             <FormField label="Stok Minimum">
               <input type="number" value={form.stokMinimum} onChange={(e) => setForm({ ...form, stokMinimum: Number(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" min={0} />
+                className="input" min={0} />
             </FormField>
             <FormField label="Formularium RS">
               <select value={form.isFormularium ? 'true' : 'false'}
                 onChange={(e) => setForm({ ...form, isFormularium: e.target.value === 'true' })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 <option value="true">Ya</option>
                 <option value="false">Tidak</option>
               </select>
@@ -144,9 +144,9 @@ export default function ObatPage() {
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
+              className="btn btn-ghost btn-sm">Batal</button>
             <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">Simpan</button>
+              className="btn btn-primary btn-sm">Simpan</button>
           </div>
         </form>
       </Modal>

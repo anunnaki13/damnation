@@ -71,11 +71,11 @@ export default function AnalitikPage() {
                 <p className="text-[24px] font-bold text-emerald-400">{formatRp(revenue.totalRevenue)}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/[0.02] rounded-xl p-3">
+                <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
                   <p className="text-[18px] font-bold text-white">{revenue.paymentCount}</p>
                   <p className="text-[10px] text-[#4a5268]">Transaksi</p>
                 </div>
-                <div className="bg-white/[0.02] rounded-xl p-3">
+                <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3">
                   <p className="text-[18px] font-bold text-amber-400">{revenue.openBills}</p>
                   <p className="text-[10px] text-[#4a5268]">Belum Bayar</p>
                 </div>
@@ -105,7 +105,7 @@ export default function AnalitikPage() {
                       </div>
                       <span className="text-[12px] font-bold text-white">{d.count}</span>
                     </div>
-                    <div className="h-1 bg-white/[0.03] rounded-full overflow-hidden">
+                    <div className="h-1 bg-[rgba(255,255,255,0.03)] rounded-full overflow-hidden">
                       <div className="h-full bg-gradient-to-r from-[#7c5cfc] to-[#2dd4bf] rounded-full transition-all duration-700"
                         style={{ width: `${(d.count / maxCount) * 100}%` }} />
                     </div>

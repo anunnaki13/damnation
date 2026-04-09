@@ -98,7 +98,7 @@ export default function PasienPage() {
         action={
           <button
             onClick={() => { resetForm(); setEditing(null); setShowForm(true); }}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700"
+            className="btn btn-primary btn-sm"
           >
             + Pasien Baru
           </button>
@@ -134,34 +134,34 @@ export default function PasienPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="Nama Lengkap" required>
               <input type="text" value={form.namaLengkap} onChange={(e) => setForm({ ...form, namaLengkap: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required />
+                className="input" required />
             </FormField>
             <FormField label="NIK">
               <input type="text" value={form.nik} onChange={(e) => setForm({ ...form, nik: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" maxLength={16} />
+                className="input" maxLength={16} />
             </FormField>
             <FormField label="No. BPJS">
               <input type="text" value={form.noBpjs} onChange={(e) => setForm({ ...form, noBpjs: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" maxLength={13} />
+                className="input" maxLength={13} />
             </FormField>
             <FormField label="Jenis Kelamin" required>
               <select value={form.jenisKelamin} onChange={(e) => setForm({ ...form, jenisKelamin: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 <option value="L">Laki-laki</option>
                 <option value="P">Perempuan</option>
               </select>
             </FormField>
             <FormField label="Tempat Lahir">
               <input type="text" value={form.tempatLahir} onChange={(e) => setForm({ ...form, tempatLahir: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="Tanggal Lahir" required>
               <input type="date" value={form.tanggalLahir} onChange={(e) => setForm({ ...form, tanggalLahir: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required />
+                className="input" required />
             </FormField>
             <FormField label="Agama">
               <select value={form.agama} onChange={(e) => setForm({ ...form, agama: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 <option value="">-- Pilih --</option>
                 <option value="Islam">Islam</option>
                 <option value="Kristen">Kristen</option>
@@ -173,50 +173,50 @@ export default function PasienPage() {
             </FormField>
             <FormField label="Pekerjaan">
               <input type="text" value={form.pekerjaan} onChange={(e) => setForm({ ...form, pekerjaan: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="No. HP">
               <input type="text" value={form.noHp} onChange={(e) => setForm({ ...form, noHp: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="Email">
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
           </div>
 
           <FormField label="Alamat">
             <textarea value={form.alamat} onChange={(e) => setForm({ ...form, alamat: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" rows={2} />
+              className="input" rows={2} />
           </FormField>
 
           <div className="border-t pt-4 mt-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Data Tambahan</h4>
+            <h4 className="text-sm font-medium text-[var(--text-1)] mb-3">Data Tambahan</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField label="Nama Ibu Kandung">
                 <input type="text" value={form.namaIbu} onChange={(e) => setForm({ ...form, namaIbu: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  className="input" />
               </FormField>
               <FormField label="Penanggung Jawab">
                 <input type="text" value={form.namaPj} onChange={(e) => setForm({ ...form, namaPj: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  className="input" />
               </FormField>
               <FormField label="Hubungan PJ">
                 <input type="text" value={form.hubunganPj} onChange={(e) => setForm({ ...form, hubunganPj: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  className="input" />
               </FormField>
               <FormField label="Telp PJ">
                 <input type="text" value={form.telpPj} onChange={(e) => setForm({ ...form, telpPj: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-sm" />
+                  className="input" />
               </FormField>
             </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button type="button" onClick={() => { setShowForm(false); setEditing(null); }}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
+              className="btn btn-ghost btn-sm">Batal</button>
             <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+              className="btn btn-primary btn-sm">
               {editing ? 'Simpan Perubahan' : 'Daftarkan Pasien'}
             </button>
           </div>

@@ -62,7 +62,7 @@ export default function DashboardPage() {
             <span className="text-[11px] text-[#4a5268] uppercase tracking-wider font-semibold">BPJS</span>
           </div>
           <p className="text-[28px] font-bold text-emerald-400">{stats?.bpjs ?? 0}</p>
-          <div className="mt-3 h-1 bg-white/[0.03] rounded-full"><div className="h-full bg-emerald-500/40 rounded-full transition-all duration-1000" style={{ width: stats?.total ? `${(stats.bpjs/stats.total)*100}%` : '0%' }} /></div>
+          <div className="mt-3 h-1 bg-[rgba(255,255,255,0.03)] rounded-full"><div className="h-full bg-emerald-500/40 rounded-full transition-all duration-1000" style={{ width: stats?.total ? `${(stats.bpjs/stats.total)*100}%` : '0%' }} /></div>
         </div>
 
         {/* Umum */}
@@ -74,7 +74,7 @@ export default function DashboardPage() {
             <span className="text-[11px] text-[#4a5268] uppercase tracking-wider font-semibold">Umum</span>
           </div>
           <p className="text-[28px] font-bold text-amber-400">{stats?.umum ?? 0}</p>
-          <div className="mt-3 h-1 bg-white/[0.03] rounded-full"><div className="h-full bg-amber-500/40 rounded-full transition-all duration-1000" style={{ width: stats?.total ? `${(stats.umum/stats.total)*100}%` : '0%' }} /></div>
+          <div className="mt-3 h-1 bg-[rgba(255,255,255,0.03)] rounded-full"><div className="h-full bg-amber-500/40 rounded-full transition-all duration-1000" style={{ width: stats?.total ? `${(stats.umum/stats.total)*100}%` : '0%' }} /></div>
         </div>
       </div>
 

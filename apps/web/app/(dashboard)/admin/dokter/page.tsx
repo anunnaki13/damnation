@@ -75,7 +75,7 @@ export default function DokterPage() {
         description={`Total: ${meta.total} tenaga kesehatan`}
         action={
           <button onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700">
+            className="btn btn-primary btn-sm">
             + Tambah Nakes
           </button>
         }
@@ -89,47 +89,47 @@ export default function DokterPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="Nama Lengkap" required>
               <input type="text" value={form.namaLengkap} onChange={(e) => setForm({ ...form, namaLengkap: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required />
+                className="input" required />
             </FormField>
             <FormField label="Jenis Nakes" required>
               <select value={form.jenisNakes} onChange={(e) => setForm({ ...form, jenisNakes: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 {JENIS_NAKES.map((j) => <option key={j} value={j}>{NAKES_LABELS[j]}</option>)}
               </select>
             </FormField>
             <FormField label="Jenis Kelamin" required>
               <select value={form.jenisKelamin} onChange={(e) => setForm({ ...form, jenisKelamin: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="input">
                 <option value="L">Laki-laki</option>
                 <option value="P">Perempuan</option>
               </select>
             </FormField>
             <FormField label="Spesialisasi">
               <input type="text" value={form.spesialisasi} onChange={(e) => setForm({ ...form, spesialisasi: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="NIP">
               <input type="text" value={form.nip} onChange={(e) => setForm({ ...form, nip: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="No. SIP">
               <input type="text" value={form.sipNumber} onChange={(e) => setForm({ ...form, sipNumber: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="No. STR">
               <input type="text" value={form.strNumber} onChange={(e) => setForm({ ...form, strNumber: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="No. HP">
               <input type="text" value={form.noHp} onChange={(e) => setForm({ ...form, noHp: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
           </div>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
+              className="btn btn-ghost btn-sm">Batal</button>
             <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">Simpan</button>
+              className="btn btn-primary btn-sm">Simpan</button>
           </div>
         </form>
       </Modal>

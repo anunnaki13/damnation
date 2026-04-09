@@ -65,7 +65,7 @@ export default function LokasiPage() {
         description={`Total: ${data.length} lokasi aktif`}
         action={
           <button onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700">
+            className="btn btn-primary btn-sm">
             + Tambah Lokasi
           </button>
         }
@@ -73,7 +73,7 @@ export default function LokasiPage() {
 
       <div className="mb-4">
         <select value={filterTipe} onChange={(e) => setFilterTipe(e.target.value)}
-          className="px-3 py-2 border rounded-lg text-sm">
+          className="select">
           <option value="">Semua Tipe</option>
           {TIPE_LOKASI.map((t) => <option key={t} value={t}>{t}</option>)}
         </select>
@@ -85,37 +85,37 @@ export default function LokasiPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Kode Lokasi" required>
             <input type="text" value={form.kode} onChange={(e) => setForm({ ...form, kode: e.target.value.toUpperCase() })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" required placeholder="POLI-KULIT" />
+              className="input" required placeholder="POLI-KULIT" />
           </FormField>
           <FormField label="Nama Lokasi" required>
             <input type="text" value={form.nama} onChange={(e) => setForm({ ...form, nama: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" required />
+              className="input" required />
           </FormField>
           <FormField label="Tipe" required>
             <select value={form.tipe} onChange={(e) => setForm({ ...form, tipe: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm">
+              className="input">
               {TIPE_LOKASI.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
           </FormField>
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Lantai">
               <input type="text" value={form.lantai} onChange={(e) => setForm({ ...form, lantai: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="Gedung">
               <input type="text" value={form.gedung} onChange={(e) => setForm({ ...form, gedung: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
           </div>
           <FormField label="Kapasitas Bed">
             <input type="number" value={form.kapasitasBed} onChange={(e) => setForm({ ...form, kapasitasBed: parseInt(e.target.value) || 0 })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" min={0} />
+              className="input" min={0} />
           </FormField>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
+              className="btn btn-ghost btn-sm">Batal</button>
             <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">Simpan</button>
+              className="btn btn-primary btn-sm">Simpan</button>
           </div>
         </form>
       </Modal>

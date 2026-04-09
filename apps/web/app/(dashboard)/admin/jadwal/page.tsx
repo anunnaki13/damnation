@@ -63,7 +63,7 @@ export default function JadwalPage() {
     { key: 'practitioner', label: 'Dokter', render: (_: any, row: any) => (
       <div>
         <p className="font-medium">{row.practitioner?.namaLengkap}</p>
-        <p className="text-xs text-gray-400">{row.practitioner?.spesialisasi || '-'}</p>
+        <p className="text-xs text-[var(--text-3)]">{row.practitioner?.spesialisasi || '-'}</p>
       </div>
     )},
     { key: 'jamMulai', label: 'Jam Mulai' },
@@ -81,7 +81,7 @@ export default function JadwalPage() {
         description="Kelola jadwal dokter per poli"
         action={
           <button onClick={() => { setForm({ ...form, locationId: selectedLoc || 0 }); setShowForm(true); }}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700">
+            className="btn btn-primary btn-sm">
             + Tambah Jadwal
           </button>
         }
@@ -91,7 +91,7 @@ export default function JadwalPage() {
         {locations.map((loc) => (
           <button key={loc.id} onClick={() => fetchSchedules(loc.id)}
             className={`px-3 py-1.5 text-sm rounded-lg border transition ${
-              selectedLoc === loc.id ? 'bg-primary-600 text-white border-primary-600' : 'hover:bg-gray-100'
+              selectedLoc === loc.id ? 'bg-primary-600 text-white border-primary-600' : 'hover:bg-[var(--glass-hover)]'
             }`}>
             {loc.nama}
           </button>
@@ -102,7 +102,7 @@ export default function JadwalPage() {
         <DataTable columns={columns} data={schedules} isLoading={loading}
           emptyMessage="Belum ada jadwal untuk poli ini" />
       ) : (
-        <div className="bg-white rounded-xl border p-12 text-center text-gray-400">
+        <div className="card-flat p-12 text-center text-[var(--text-3)]">
           Pilih poli untuk melihat jadwal dokter
         </div>
       )}
@@ -111,7 +111,7 @@ export default function JadwalPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Dokter" required>
             <select value={form.practitionerId} onChange={(e) => setForm({ ...form, practitionerId: Number(e.target.value) })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" required>
+              className="input" required>
               <option value={0}>-- Pilih Dokter --</option>
               {practitioners.map((p) => (
                 <option key={p.id} value={p.id}>{p.namaLengkap} {p.spesialisasi ? `(${p.spesialisasi})` : ''}</option>
@@ -120,36 +120,36 @@ export default function JadwalPage() {
           </FormField>
           <FormField label="Poli / Lokasi" required>
             <select value={form.locationId} onChange={(e) => setForm({ ...form, locationId: Number(e.target.value) })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" required>
+              className="input" required>
               <option value={0}>-- Pilih Lokasi --</option>
               {locations.map((l) => <option key={l.id} value={l.id}>{l.nama}</option>)}
             </select>
           </FormField>
           <FormField label="Hari" required>
             <select value={form.hari} onChange={(e) => setForm({ ...form, hari: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm">
+              className="input">
               {HARI.map((h) => <option key={h} value={h}>{h}</option>)}
             </select>
           </FormField>
           <div className="grid grid-cols-2 gap-4">
             <FormField label="Jam Mulai" required>
               <input type="time" value={form.jamMulai} onChange={(e) => setForm({ ...form, jamMulai: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required />
+                className="input" required />
             </FormField>
             <FormField label="Jam Selesai" required>
               <input type="time" value={form.jamSelesai} onChange={(e) => setForm({ ...form, jamSelesai: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required />
+                className="input" required />
             </FormField>
           </div>
           <FormField label="Kuota Pasien">
             <input type="number" value={form.kuotaPasien} onChange={(e) => setForm({ ...form, kuotaPasien: Number(e.target.value) })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" min={1} />
+              className="input" min={1} />
           </FormField>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
+              className="btn btn-ghost btn-sm">Batal</button>
             <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">Simpan</button>
+              className="btn btn-primary btn-sm">Simpan</button>
           </div>
         </form>
       </Modal>

@@ -155,7 +155,7 @@ export default function RawatInapPage() {
                   <h3 className="text-white font-semibold">{bangsal.nama}</h3>
                   <p className="text-xs text-slate-500">{bangsal.summary.terisi}/{bangsal.summary.total} terisi | {bangsal.summary.tersedia} tersedia</p>
                 </div>
-                <div className="h-2 w-32 bg-white/5 rounded-full overflow-hidden">
+                <div className="h-2 w-32 bg-[rgba(255,255,255,0.04)] rounded-full overflow-hidden">
                   <div className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full"
                     style={{ width: bangsal.summary.total ? `${(bangsal.summary.terisi / bangsal.summary.total) * 100}%` : '0%' }} />
                 </div>
@@ -234,7 +234,7 @@ export default function RawatInapPage() {
             </div>
             <div className="flex justify-between"><span className="text-slate-400">Tarif/Hari</span><span className="text-white">Rp {selectedBed.tarifPerHari?.toLocaleString()}</span></div>
             {selectedBed.patient && (
-              <div className="mt-4 p-3 bg-white/[0.03] rounded-xl">
+              <div className="mt-4 p-3 bg-[rgba(255,255,255,0.03)] rounded-xl">
                 <p className="text-white font-medium">{selectedBed.patient.namaLengkap}</p>
                 <p className="text-xs text-slate-500">{selectedBed.patient.noRm} | {selectedBed.patient.noRawat}</p>
                 <p className="text-xs text-slate-500">Masuk: {selectedBed.patient.tanggalMasuk ? formatDate(selectedBed.patient.tanggalMasuk) : '-'}</p>
@@ -250,7 +250,7 @@ export default function RawatInapPage() {
           title={`CPPT — ${showCPPT.patient?.namaLengkap}`} size="xl">
           <div className="space-y-4">
             {/* Input CPPT */}
-            <div className="bg-white/[0.02] rounded-xl p-4 space-y-3">
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-4 space-y-3">
               <h4 className="text-sm font-medium text-indigo-400">Input CPPT Baru</h4>
               <div className="grid grid-cols-2 gap-3">
                 <FormField label="S — Subjective">
@@ -281,7 +281,7 @@ export default function RawatInapPage() {
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {cpptHistory.map((c: any) => (
-                    <div key={c.id} className="bg-white/[0.02] rounded-lg p-3 text-sm">
+                    <div key={c.id} className="bg-[rgba(255,255,255,0.03)] rounded-lg p-3 text-sm">
                       <div className="flex justify-between text-xs text-slate-500 mb-1">
                         <span>{c.practitioner?.namaLengkap} ({c.practitioner?.jenisNakes})</span>
                         <span>{new Date(c.createdAt).toLocaleString('id-ID')}</span>

@@ -174,7 +174,7 @@ export default function FarmasiPage() {
                   </div>
 
                   {/* Items */}
-                  <div className="bg-white/[0.02] rounded-xl p-3 space-y-1.5">
+                  <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 space-y-1.5">
                     {rx.items?.map((item: any, idx: number) => (
                       <div key={item.id} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">

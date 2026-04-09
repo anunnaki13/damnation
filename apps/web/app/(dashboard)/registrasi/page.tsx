@@ -113,7 +113,7 @@ export default function RegistrasiPage() {
     { key: 'patient', label: 'Pasien', render: (_: any, row: any) => (
       <div>
         <p className="font-medium">{row.patient?.namaLengkap}</p>
-        <p className="text-xs text-gray-400">{row.patient?.noRm} | {row.patient?.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
+        <p className="text-xs text-[var(--text-3)]">{row.patient?.noRm} | {row.patient?.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</p>
       </div>
     )},
     { key: 'location', label: 'Poli', render: (_: any, row: any) => row.location?.nama || '-' },
@@ -140,8 +140,7 @@ export default function RegistrasiPage() {
         title="Registrasi & Admisi"
         description="Pendaftaran kunjungan pasien rawat jalan & IGD"
         action={
-          <button onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700">
+          <button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm">
             + Daftarkan Kunjungan
           </button>
         }
@@ -151,17 +150,17 @@ export default function RegistrasiPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
           {[
-            { label: 'Total', value: stats.total, color: 'text-gray-800' },
-            { label: 'Rawat Jalan', value: stats.rawatJalan, color: 'text-blue-600' },
-            { label: 'IGD', value: stats.igd, color: 'text-red-600' },
-            { label: 'BPJS', value: stats.bpjs, color: 'text-green-600' },
-            { label: 'Umum', value: stats.umum, color: 'text-orange-600' },
-            { label: 'Selesai', value: stats.selesai, color: 'text-gray-500' },
-            { label: 'Belum', value: stats.belumSelesai, color: 'text-purple-600' },
+            { label: 'Total', value: stats.total, color: 'text-[var(--text-1)]' },
+            { label: 'Rawat Jalan', value: stats.rawatJalan, color: 'text-[var(--primary-soft)]' },
+            { label: 'IGD', value: stats.igd, color: 'text-[var(--rose)]' },
+            { label: 'BPJS', value: stats.bpjs, color: 'text-[var(--teal)]' },
+            { label: 'Umum', value: stats.umum, color: 'text-[var(--amber)]' },
+            { label: 'Selesai', value: stats.selesai, color: 'text-[var(--text-2)]' },
+            { label: 'Belum', value: stats.belumSelesai, color: 'text-[var(--primary-soft)]' },
           ].map((s) => (
-            <div key={s.label} className="bg-white rounded-lg border p-3 text-center">
+            <div key={s.label} className="card-flat p-3 text-center">
               <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-gray-500">{s.label}</p>
+              <p className="text-xs text-[var(--text-3)]">{s.label}</p>
             </div>
           ))}
         </div>
@@ -170,12 +169,12 @@ export default function RegistrasiPage() {
       {/* Filter Poli */}
       <div className="mb-4 flex gap-2 flex-wrap">
         <button onClick={() => setFilterLoc('')}
-          className={`px-3 py-1.5 text-sm rounded-lg border ${!filterLoc ? 'bg-primary-600 text-white border-primary-600' : 'hover:bg-gray-100'}`}>
+          className={`px-3 py-1.5 text-sm rounded-lg border ${!filterLoc ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'btn btn-ghost btn-sm'}`}>
           Semua Poli
         </button>
         {locations.map((loc) => (
           <button key={loc.id} onClick={() => setFilterLoc(loc.id)}
-            className={`px-3 py-1.5 text-sm rounded-lg border ${String(filterLoc) === String(loc.id) ? 'bg-primary-600 text-white border-primary-600' : 'hover:bg-gray-100'}`}>
+            className={`px-3 py-1.5 text-sm rounded-lg border ${String(filterLoc) === String(loc.id) ? 'bg-[var(--primary)] text-white border-[var(--primary)]' : 'btn btn-ghost btn-sm'}`}>
             {loc.nama}
           </button>
         ))}
@@ -193,24 +192,24 @@ export default function RegistrasiPage() {
         title="Daftarkan Kunjungan Baru" size="xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Patient Search */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-[rgba(255,255,255,0.03)] rounded-lg p-4">
             <FormField label="Cari Pasien" required>
               <input type="text" value={patientSearch}
                 onChange={(e) => { setPatientSearch(e.target.value); searchPatient(e.target.value); }}
-                className="w-full px-3 py-2 border rounded-lg text-sm"
+                className="input"
                 placeholder="Ketik No.RM, NIK, nama, atau No.BPJS..." />
             </FormField>
 
             {/* Search Results */}
             {patientResults.length > 0 && (
-              <div className="mt-2 border rounded-lg bg-white max-h-48 overflow-y-auto">
+              <div className="mt-2 card-flat max-h-48 overflow-y-auto">
                 {patientResults.map((p) => (
                   <button key={p.id} type="button" onClick={() => selectPatient(p)}
-                    className="w-full text-left px-4 py-2 hover:bg-blue-50 border-b last:border-0 text-sm">
-                    <span className="font-mono text-primary-600">{p.noRm}</span>
+                    className="w-full text-left px-4 py-2 hover:bg-[var(--glass-hover)] border-b border-[var(--glass-border)] last:border-0 text-sm text-[var(--text-1)]">
+                    <span className="font-mono text-[var(--primary-soft)]">{p.noRm}</span>
                     <span className="mx-2">—</span>
                     <span className="font-medium">{p.namaLengkap}</span>
-                    <span className="text-gray-400 ml-2">
+                    <span className="text-[var(--text-3)] ml-2">
                       {p.jenisKelamin === 'L' ? 'L' : 'P'} | {p.nik || '-'} | BPJS: {p.noBpjs || '-'}
                     </span>
                   </button>
@@ -220,16 +219,16 @@ export default function RegistrasiPage() {
 
             {/* Selected Patient Card */}
             {selectedPatient && (
-              <div className="mt-3 bg-white border-2 border-primary-200 rounded-lg p-3">
+              <div className="mt-3 card-flat border-2 border-[var(--primary)] rounded-lg p-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-bold text-lg">{selectedPatient.namaLengkap}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-bold text-lg text-[var(--text-1)]">{selectedPatient.namaLengkap}</p>
+                    <p className="text-sm text-[var(--text-2)]">
                       {selectedPatient.noRm} | {selectedPatient.jenisKelamin === 'L' ? 'Laki-laki' : 'Perempuan'}
                       {selectedPatient.tanggalLahir && ` | ${new Date(selectedPatient.tanggalLahir).toLocaleDateString('id-ID')}`}
                     </p>
                     {selectedPatient.noBpjs && (
-                      <p className="text-sm text-green-600 mt-1">BPJS: {selectedPatient.noBpjs}</p>
+                      <p className="text-sm text-[var(--teal)] mt-1">BPJS: {selectedPatient.noBpjs}</p>
                     )}
                   </div>
                   <button type="button" onClick={() => { setSelectedPatient(null); setForm((f) => ({ ...f, patientId: 0 })); }}
@@ -243,7 +242,7 @@ export default function RegistrasiPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="Tipe Kunjungan" required>
               <select value={form.tipe} onChange={(e) => setForm({ ...form, tipe: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="select">
                 <option value="RAWAT_JALAN">Rawat Jalan</option>
                 <option value="IGD">IGD</option>
               </select>
@@ -251,7 +250,7 @@ export default function RegistrasiPage() {
 
             <FormField label="Penjamin" required>
               <select value={form.penjamin} onChange={(e) => setForm({ ...form, penjamin: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="select">
                 <option value="UMUM">Umum</option>
                 <option value="BPJS">BPJS Kesehatan</option>
                 <option value="ASURANSI">Asuransi</option>
@@ -262,7 +261,7 @@ export default function RegistrasiPage() {
 
             <FormField label="Poli Tujuan" required>
               <select value={form.locationId} onChange={(e) => setForm({ ...form, locationId: Number(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" required>
+                className="select" required>
                 <option value={0}>-- Pilih Poli --</option>
                 {locations.map((l) => <option key={l.id} value={l.id}>{l.nama}</option>)}
               </select>
@@ -270,7 +269,7 @@ export default function RegistrasiPage() {
 
             <FormField label="Dokter">
               <select value={form.practitionerId} onChange={(e) => setForm({ ...form, practitionerId: Number(e.target.value) })}
-                className="w-full px-3 py-2 border rounded-lg text-sm">
+                className="select">
                 <option value={0}>-- Pilih Dokter --</option>
                 {practitioners.filter((p) => ['DOKTER_UMUM', 'DOKTER_SPESIALIS', 'DOKTER_GIGI'].includes(p.jenisNakes))
                   .map((p) => (
@@ -282,13 +281,13 @@ export default function RegistrasiPage() {
 
           {/* BPJS fields */}
           {form.penjamin === 'BPJS' && (
-            <div className="bg-green-50 rounded-lg p-4">
-              <h4 className="text-sm font-medium text-green-800 mb-3">Data BPJS</h4>
+            <div className="bg-[var(--teal-dim)] rounded-lg p-4">
+              <h4 className="text-sm font-medium text-[var(--teal)] mb-3">Data BPJS</h4>
               <FormField label="No. Rujukan">
                 <input type="text" value={form.noRujukan} onChange={(e) => setForm({ ...form, noRujukan: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Masukkan no. rujukan FKTP" />
+                  className="input" placeholder="Masukkan no. rujukan FKTP" />
               </FormField>
-              <p className="text-xs text-green-600 mt-2">* Penerbitan SEP otomatis setelah integrasi BPJS VClaim aktif</p>
+              <p className="text-xs text-[var(--teal)] mt-2">* Penerbitan SEP otomatis setelah integrasi BPJS VClaim aktif</p>
             </div>
           )}
 
@@ -296,23 +295,22 @@ export default function RegistrasiPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField label="Penanggung Jawab">
               <input type="text" value={form.pJawab} onChange={(e) => setForm({ ...form, pJawab: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="Hubungan">
               <input type="text" value={form.hubunganPj} onChange={(e) => setForm({ ...form, hubunganPj: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
             <FormField label="Alamat PJ">
               <input type="text" value={form.alamatPj} onChange={(e) => setForm({ ...form, alamatPj: e.target.value })}
-                className="w-full px-3 py-2 border rounded-lg text-sm" />
+                className="input" />
             </FormField>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[var(--glass-border)]">
             <button type="button" onClick={() => { setShowForm(false); setSelectedPatient(null); }}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
-            <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+              className="btn btn-ghost btn-sm">Batal</button>
+            <button type="submit" className="btn btn-primary btn-sm px-6">
               Daftarkan Kunjungan
             </button>
           </div>

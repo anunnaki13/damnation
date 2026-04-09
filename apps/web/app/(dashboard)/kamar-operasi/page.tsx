@@ -64,7 +64,7 @@ export default function KamarOperasiPage() {
                 <p className="text-white font-semibold">{op.nmPerawatan || op.icd9cmDisplay}</p>
                 <p className="text-[12px] text-[#8892a4] mt-1">Pasien: {op.encounter?.patient?.namaLengkap} ({op.encounter?.patient?.noRm})</p>
                 <p className="text-[12px] text-[#4a5268]">Operator: {op.practitioner?.namaLengkap} | {op.practitioner?.spesialisasi || '-'}</p>
-                {op.catatan && <p className="text-[11px] text-[#4a5268] mt-2 whitespace-pre-line bg-white/[0.02] rounded-xl p-3">{op.catatan}</p>}
+                {op.catatan && <p className="text-[11px] text-[#4a5268] mt-2 whitespace-pre-line bg-[rgba(255,255,255,0.03)] rounded-xl p-3">{op.catatan}</p>}
               </div>
               {op.statusBayar !== 'Sudah' && (
                 <button onClick={() => setShowReport(op)} className="btn btn-success btn-xs">Laporan</button>

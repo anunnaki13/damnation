@@ -113,7 +113,7 @@ export default function RadiologiPage() {
                     <p className="text-xs text-slate-500">{order.patient?.namaLengkap} ({order.patient?.noRm})</p>
                     {order.catatanKlinis && <p className="text-xs text-slate-400 mt-1">Klinis: {order.catatanKlinis}</p>}
                     {order.kesan && (
-                      <div className="mt-2 p-2 bg-white/[0.02] rounded-lg">
+                      <div className="mt-2 p-2 bg-[rgba(255,255,255,0.03)] rounded-lg">
                         <p className="text-xs text-slate-400">Kesan: <span className="text-white">{order.kesan}</span></p>
                       </div>
                     )}
@@ -141,7 +141,7 @@ export default function RadiologiPage() {
       <Modal isOpen={!!showExpertise} onClose={() => setShowExpertise(null)}
         title={`Expertise — ${showExpertise?.jenisPemeriksaan || ''}`} size="lg">
         <div className="space-y-4">
-          <div className="bg-white/[0.02] rounded-xl p-3 text-sm">
+          <div className="bg-[rgba(255,255,255,0.03)] rounded-xl p-3 text-sm">
             <p className="text-slate-400">Pasien: <span className="text-white">{showExpertise?.patient?.namaLengkap}</span></p>
             <p className="text-slate-400">Modalitas: <span className="text-white">{showExpertise?.modalitas}</span></p>
             {showExpertise?.catatanKlinis && <p className="text-slate-400">Klinis: <span className="text-white">{showExpertise.catatanKlinis}</span></p>}

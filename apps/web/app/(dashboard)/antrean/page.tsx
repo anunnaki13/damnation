@@ -75,8 +75,7 @@ export default function AntreanPage() {
         title="Manajemen Antrean"
         description="Monitor dan kelola antrean pasien per poli"
         action={selectedLoc ? (
-          <button onClick={handleCallNext}
-            className="px-6 py-2.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 font-medium">
+          <button onClick={handleCallNext} className="btn btn-primary btn-sm px-6 py-2.5 font-medium">
             Panggil Berikutnya
           </button>
         ) : undefined}
@@ -86,15 +85,15 @@ export default function AntreanPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
         {summary.map((s) => (
           <button key={s.location.id} onClick={() => fetchQueue(s.location.id)}
-            className={`bg-white rounded-xl border p-4 text-left hover:shadow-md transition ${
-              selectedLoc === s.location.id ? 'ring-2 ring-primary-500 border-primary-500' : ''
+            className={`card-flat p-4 text-left hover:bg-[var(--glass-hover)] transition ${
+              selectedLoc === s.location.id ? 'ring-2 ring-[var(--primary)] border-[var(--primary)]' : ''
             }`}>
-            <p className="text-sm font-medium text-gray-700 truncate">{s.location.nama}</p>
+            <p className="text-sm font-medium text-[var(--text-1)] truncate">{s.location.nama}</p>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-3xl font-bold text-primary-600">{s.currentNumber ?? '-'}</span>
-              <span className="text-xs text-gray-400">sedang</span>
+              <span className="text-3xl font-bold text-[var(--primary-soft)]">{s.currentNumber ?? '-'}</span>
+              <span className="text-xs text-[var(--text-3)]">sedang</span>
             </div>
-            <div className="flex gap-3 mt-2 text-xs text-gray-500">
+            <div className="flex gap-3 mt-2 text-xs text-[var(--text-3)]">
               <span>{s.waiting} menunggu</span>
               <span>{s.done} selesai</span>
             </div>
@@ -107,7 +106,7 @@ export default function AntreanPage() {
         <div>
           {/* Current Number Display */}
           {queueData.summary.currentNumber && (
-            <div className="bg-primary-600 text-white rounded-2xl p-8 mb-6 text-center">
+            <div className="bg-[var(--primary)] text-white rounded-2xl p-8 mb-6 text-center">
               <p className="text-sm opacity-80">Nomor Antrean Saat Ini</p>
               <p className="text-7xl font-bold my-2">{queueData.summary.currentNumber}</p>
               <p className="text-sm opacity-80">
@@ -118,70 +117,70 @@ export default function AntreanPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-4 gap-3 mb-6">
-            <div className="bg-white rounded-lg border p-3 text-center">
-              <p className="text-2xl font-bold">{queueData.summary.total}</p>
-              <p className="text-xs text-gray-500">Total</p>
+            <div className="card-flat p-3 text-center">
+              <p className="text-2xl font-bold text-[var(--text-1)]">{queueData.summary.total}</p>
+              <p className="text-xs text-[var(--text-3)]">Total</p>
             </div>
-            <div className="bg-blue-50 rounded-lg border border-blue-200 p-3 text-center">
-              <p className="text-2xl font-bold text-blue-600">{queueData.summary.waiting}</p>
-              <p className="text-xs text-blue-500">Menunggu</p>
+            <div className="bg-[var(--primary-dim)] rounded-lg border border-[var(--glass-border)] p-3 text-center">
+              <p className="text-2xl font-bold text-[var(--primary-soft)]">{queueData.summary.waiting}</p>
+              <p className="text-xs text-[var(--primary-soft)]">Menunggu</p>
             </div>
-            <div className="bg-green-50 rounded-lg border border-green-200 p-3 text-center">
-              <p className="text-2xl font-bold text-green-600">{queueData.summary.serving}</p>
-              <p className="text-xs text-green-500">Dilayani</p>
+            <div className="bg-[var(--teal-dim)] rounded-lg border border-[var(--glass-border)] p-3 text-center">
+              <p className="text-2xl font-bold text-[var(--teal)]">{queueData.summary.serving}</p>
+              <p className="text-xs text-[var(--teal)]">Dilayani</p>
             </div>
-            <div className="bg-gray-50 rounded-lg border p-3 text-center">
-              <p className="text-2xl font-bold text-gray-500">{queueData.summary.done}</p>
-              <p className="text-xs text-gray-400">Selesai</p>
+            <div className="bg-[var(--glass-bg)] rounded-lg border border-[var(--glass-border)] p-3 text-center">
+              <p className="text-2xl font-bold text-[var(--text-2)]">{queueData.summary.done}</p>
+              <p className="text-xs text-[var(--text-3)]">Selesai</p>
             </div>
           </div>
 
           {/* Ticket List */}
-          <div className="bg-white rounded-xl border overflow-hidden">
+          <div className="card-flat overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-gray-50 border-b">
-                  <th className="px-4 py-3 text-center w-20">No</th>
-                  <th className="px-4 py-3 text-left">Pasien</th>
-                  <th className="px-4 py-3 text-left">No. RM</th>
-                  <th className="px-4 py-3 text-center">Status</th>
-                  <th className="px-4 py-3 text-center">Waktu Daftar</th>
-                  <th className="px-4 py-3 text-center">Aksi</th>
+                <tr className="bg-[rgba(255,255,255,0.03)] border-b border-[var(--glass-border)]">
+                  <th className="px-4 py-3 text-center w-20 text-[var(--text-2)]">No</th>
+                  <th className="px-4 py-3 text-left text-[var(--text-2)]">Pasien</th>
+                  <th className="px-4 py-3 text-left text-[var(--text-2)]">No. RM</th>
+                  <th className="px-4 py-3 text-center text-[var(--text-2)]">Status</th>
+                  <th className="px-4 py-3 text-center text-[var(--text-2)]">Waktu Daftar</th>
+                  <th className="px-4 py-3 text-center text-[var(--text-2)]">Aksi</th>
                 </tr>
               </thead>
               <tbody>
                 {queueData.tickets.map((t: any) => {
                   const st = STATUS_STYLE[t.status] || { label: t.status, variant: 'default' as const };
                   return (
-                    <tr key={t.id} className={`border-b last:border-0 ${
-                      t.status === 'CALLED' ? 'bg-yellow-50' :
-                      t.status === 'SERVING' ? 'bg-green-50' : ''
+                    <tr key={t.id} className={`border-b border-[var(--glass-border)] last:border-0 ${
+                      t.status === 'CALLED' ? 'bg-[var(--amber-dim)]' :
+                      t.status === 'SERVING' ? 'bg-[var(--teal-dim)]' : ''
                     }`}>
                       <td className="px-4 py-3 text-center">
                         <span className={`text-2xl font-bold ${
-                          t.status === 'CALLED' || t.status === 'SERVING' ? 'text-primary-600' : 'text-gray-400'
+                          t.status === 'CALLED' || t.status === 'SERVING' ? 'text-[var(--primary-soft)]' : 'text-[var(--text-3)]'
                         }`}>
                           {t.nomorAntrean}
                         </span>
                       </td>
-                      <td className="px-4 py-3 font-medium">{t.patient?.namaLengkap || '-'}</td>
-                      <td className="px-4 py-3 font-mono text-xs">{t.patient?.noRm || '-'}</td>
+                      <td className="px-4 py-3 font-medium text-[var(--text-1)]">{t.patient?.namaLengkap || '-'}</td>
+                      <td className="px-4 py-3 font-mono text-xs text-[var(--text-2)]">{t.patient?.noRm || '-'}</td>
                       <td className="px-4 py-3 text-center">
                         <StatusBadge status={st.label} variant={st.variant} />
                       </td>
-                      <td className="px-4 py-3 text-center text-xs text-gray-500">
+                      <td className="px-4 py-3 text-center text-xs text-[var(--text-3)]">
                         {t.waktuDaftar ? new Date(t.waktuDaftar).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : '-'}
                       </td>
                       <td className="px-4 py-3 text-center">
                         {t.status === 'CALLED' && (
                           <button onClick={() => handleServe(t.id)}
-                            className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 mr-1">
+                            className="btn btn-ghost btn-xs px-2 py-1 text-[var(--teal)] mr-1">
                             Layani
                           </button>
                         )}
                         {(t.status === 'WAITING' || t.status === 'CALLED') && (
                           <button onClick={() => handleSkip(t.id)}
-                            className="px-2 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200">
+                            className="btn btn-ghost btn-xs px-2 py-1 text-[var(--rose)]">
                             Skip
                           </button>
                         )}
@@ -190,14 +189,14 @@ export default function AntreanPage() {
                   );
                 })}
                 {queueData.tickets.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-12 text-center text-gray-400">Belum ada antrean</td></tr>
+                  <tr><td colSpan={6} className="px-4 py-12 text-center text-[var(--text-3)]">Belum ada antrean</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border p-12 text-center text-gray-400">
+        <div className="card-flat p-12 text-center text-[var(--text-3)]">
           Pilih poli untuk melihat dan mengelola antrean
         </div>
       )}

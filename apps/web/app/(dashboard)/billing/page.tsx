@@ -157,7 +157,7 @@ export default function BillingPage() {
             </div>
 
             {/* Items Table */}
-            <div className="bg-white/[0.02] rounded-xl overflow-hidden">
+            <div className="bg-[rgba(255,255,255,0.03)] rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/[0.06]">
@@ -206,7 +206,7 @@ export default function BillingPage() {
                 <p className="text-sm text-slate-400 mb-2">Riwayat Pembayaran</p>
                 <div className="space-y-1">
                   {selectedBill.payments.map((p: any) => (
-                    <div key={p.id} className="flex justify-between bg-white/[0.02] rounded-lg px-3 py-2 text-sm">
+                    <div key={p.id} className="flex justify-between bg-[rgba(255,255,255,0.03)] rounded-lg px-3 py-2 text-sm">
                       <div>
                         <StatusBadge status={p.metode} variant="info" />
                         {p.referensi && <span className="text-xs text-slate-500 ml-2">{p.referensi}</span>}
@@ -238,7 +238,7 @@ export default function BillingPage() {
       {/* Payment Modal */}
       <Modal isOpen={showPayment} onClose={() => setShowPayment(false)} title="Proses Pembayaran" size="sm">
         <div className="space-y-4">
-          <div className="text-center p-4 bg-white/[0.03] rounded-xl">
+          <div className="text-center p-4 bg-[rgba(255,255,255,0.03)] rounded-xl">
             <p className="text-sm text-slate-400">Sisa Tagihan</p>
             <p className="text-3xl font-bold text-white mt-1">{formatRp(selectedBill?.sisaBayar || 0)}</p>
           </div>

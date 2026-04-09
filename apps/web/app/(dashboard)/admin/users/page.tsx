@@ -80,7 +80,7 @@ export default function UsersPage() {
         description={`Total: ${meta.total} user`}
         action={
           <button onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700">
+            className="btn btn-primary btn-sm">
             + Tambah User
           </button>
         }
@@ -93,15 +93,15 @@ export default function UsersPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <FormField label="Username" required>
             <input type="text" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" required />
+              className="input" required />
           </FormField>
           <FormField label="Email">
             <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" />
+              className="input" />
           </FormField>
           <FormField label="Password" required>
             <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-              className="w-full px-3 py-2 border rounded-lg text-sm" required minLength={8} />
+              className="input" required minLength={8} />
           </FormField>
           <FormField label="Roles">
             <div className="grid grid-cols-2 gap-2">
@@ -116,9 +116,9 @@ export default function UsersPage() {
           </FormField>
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button type="button" onClick={() => setShowForm(false)}
-              className="px-4 py-2 text-sm border rounded-lg hover:bg-gray-50">Batal</button>
+              className="btn btn-ghost btn-sm">Batal</button>
             <button type="submit"
-              className="px-6 py-2 text-sm bg-primary-600 text-white rounded-lg hover:bg-primary-700">Simpan</button>
+              className="btn btn-primary btn-sm">Simpan</button>
           </div>
         </form>
       </Modal>

@@ -218,7 +218,7 @@ export default function IgdPage() {
               {Object.entries(TRIASE_CONFIG).map(([key, cfg]) => (
                 <button key={key} onClick={() => setRegForm({ ...regForm, triaseLevel: key })}
                   className={`py-3 rounded-xl text-sm font-bold border transition ${
-                    regForm.triaseLevel === key ? cfg.bgClass + ' ring-2 ring-white/20' : 'bg-white/[0.03] border-white/10 text-slate-400'
+                    regForm.triaseLevel === key ? cfg.bgClass + ' ring-2 ring-white/20' : 'bg-[rgba(255,255,255,0.03)] border-white/10 text-slate-400'
                   }`}>
                   <div>{cfg.label}</div>
                   <div className="text-[10px] font-normal mt-0.5 opacity-70">{cfg.desc.split('—')[0]}</div>
@@ -265,7 +265,7 @@ export default function IgdPage() {
               {Object.entries(TRIASE_CONFIG).map(([key, cfg]) => (
                 <button key={key} onClick={() => setTriaseForm({ ...triaseForm, triaseLevel: key })}
                   className={`py-2 rounded-xl text-xs font-bold border transition ${
-                    triaseForm.triaseLevel === key ? cfg.bgClass + ' ring-2 ring-white/20' : 'bg-white/[0.03] border-white/10 text-slate-400'
+                    triaseForm.triaseLevel === key ? cfg.bgClass + ' ring-2 ring-white/20' : 'bg-[rgba(255,255,255,0.03)] border-white/10 text-slate-400'
                   }`}>{cfg.label}</button>
               ))}
             </div>

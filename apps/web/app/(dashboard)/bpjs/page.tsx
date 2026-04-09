@@ -174,7 +174,7 @@ export default function BpjsPage() {
                 {pesertaResult.metaData?.message || 'Tidak ada data peserta'}
               </p>
               {pesertaResult.response && (
-                <pre className="mt-3 text-xs text-slate-500 bg-white/[0.02] rounded-lg p-3 overflow-auto max-h-60">
+                <pre className="mt-3 text-xs text-slate-500 bg-[rgba(255,255,255,0.03)] rounded-lg p-3 overflow-auto max-h-60">
                   {JSON.stringify(pesertaResult.response, null, 2)}
                 </pre>
               )}
